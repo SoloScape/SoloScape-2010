@@ -1,0 +1,9 @@
+Version Difference: 19 -> 22
+Compared area 41 52 and found differences!
+Printing different objects: 
+----------SOURCE----------
+[GameMapObject [id=1189 Daisies , typrot=43, position=x: 2660 y: 3334 z:0]]
+----------TARGET----------
+[GameMapObject [id=1281 Oak , typrot=43, position=x: 2685 y: 3352 z:0]
+ GameMapObject [id=44432 null , typrot=88, position=x: 2674 y: 3351 z:0]
+ GameMapObject [id=49000null, typrot=4, position=x: 2624 y: 3391 z:0]]

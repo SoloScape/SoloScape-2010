@@ -1,0 +1,18 @@
+Version Difference: 5 -> 8
+Compared area 42 154 and found differences!
+Printing different objects: 
+----------SOURCE----------
+[GameMapObject [id=320 null , typrot=88, position=x: 2692 y: 9895 z:1]
+ GameMapObject [id=320 null , typrot=89, position=x: 2696 y: 9891 z:1]
+ GameMapObject [id=320 null , typrot=88, position=x: 2701 y: 9877 z:1]
+ GameMapObject [id=320 null , typrot=88, position=x: 2703 y: 9878 z:1]
+ GameMapObject [id=321 null , typrot=91, position=x: 2696 y: 9893 z:1]
+ GameMapObject [id=3418 null , typrot=19, position=x: 2717 y: 9901 z:0]
+ GameMapObject [id=18537 null , typrot=19, position=x: 2718 y: 9901 z:0]]
+----------TARGET----------
+[GameMapObject [id=2771 null , typrot=89, position=x: 2717 y: 9901 z:0]
+ GameMapObject [id=10577 Rocks , typrot=42, position=x: 2698 y: 9907 z:0]
+ GameMapObject [id=10577 Rocks , typrot=41, position=x: 2699 y: 9908 z:0]
+ GameMapObject [id=10577 Rocks , typrot=41, position=x: 2700 y: 9907 z:0]
+ GameMapObject [id=10578 Rocks , typrot=42, position=x: 2699 y: 9905 z:0]
+ GameMapObject [id=34547 Sink , typrot=41, position=x: 2717 y: 9901 z:0]]

@@ -1,0 +1,285 @@
+Player weight packet exists, but is not used on the client on 592. Weird stuff huh?
+
+
+InterfaceChildUpdateNode types:
+
+1 globalint
+2 globalstr
+3 setstr
+4 childMedia
+
+
+
+Media types: 
+2, 6, npc on inter.
+4, item on inter.
+5, 8, 9, player on inter, diff types, find which is what.
+
+
+
+---------------TYPE 1473---------------
+COMBAT_LEVEL_ADVANCE
+Default: -1
+Key: 0 value: 3
+Key: 1 value: 5
+Key: 2 value: 10
+Key: 3 value: 15
+Key: 4 value: 25
+Key: 5 value: 50
+Key: 6 value: 75
+Key: 7 value: 90
+Key: 8 value: 100
+Key: 9 value: 110
+Key: 10 value: 120
+Key: 11 value: 126
+Key: 12 value: 130
+Key: 13 value: 138
+
+---------------TYPE 1474---------------
+COMBAT_LEVEL_ADVANCE_INDEX
+Default: -1
+Key: 130 value: 12
+Key: 3 value: 0
+Key: 100 value: 8
+Key: 5 value: 1
+Key: 10 value: 2
+Key: 138 value: 13
+Key: 75 value: 6
+Key: 110 value: 9
+Key: 15 value: 3
+Key: 50 value: 5
+Key: 120 value: 10
+Key: 25 value: 4
+Key: 90 value: 7
+Key: 126 value: 11
+
+---------------TYPE 1475---------------
+TOTAL_LEVEL_ADVANCE
+Default: -1
+Key: 0 value: 1
+Key: 1 value: 50
+Key: 2 value: 75
+Key: 3 value: 100
+Key: 4 value: 200
+Key: 5 value: 300
+Key: 6 value: 400
+Key: 7 value: 500
+Key: 8 value: 600
+Key: 9 value: 700
+Key: 10 value: 800
+Key: 11 value: 900
+Key: 12 value: 1000
+Key: 13 value: 1100
+Key: 14 value: 1200
+Key: 15 value: 1300
+Key: 16 value: 1400
+Key: 17 value: 1494
+Key: 18 value: 1500
+Key: 19 value: 1600
+Key: 20 value: 1700
+Key: 21 value: 1800
+Key: 22 value: 1900
+Key: 23 value: 2000
+Key: 24 value: 2100
+Key: 25 value: 2200
+Key: 26 value: 2300
+Key: 27 value: 2376
+
+---------------TYPE 1476---------------
+TOTAL_LEVEL_ADV_INDEX
+Default: -1
+Key: 1600 value: 19
+Key: 1 value: 0
+Key: 900 value: 11
+Key: 200 value: 4
+Key: 1800 value: 21
+Key: 2376 value: 27
+Key: 75 value: 2
+Key: 1100 value: 13
+Key: 400 value: 6
+Key: 2000 value: 23
+Key: 1300 value: 15
+Key: 1494 value: 17
+Key: 600 value: 8
+Key: 2200 value: 25
+Key: 1500 value: 18
+Key: 800 value: 10
+Key: 100 value: 3
+Key: 1700 value: 20
+Key: 1000 value: 12
+Key: 300 value: 5
+Key: 1900 value: 22
+Key: 1200 value: 14
+Key: 50 value: 1
+Key: 500 value: 7
+Key: 2100 value: 24
+Key: 1400 value: 16
+Key: 700 value: 9
+Key: 2300 value: 26
+
+---------------TYPE 1482---------------
+TRANSLATE_SKILL_ID_TO_ADVANCE_ID
+1 2 4 6 1
+Default: -1
+Key: 0 value: 1
+Key: 1 value: 5
+Key: 2 value: 2
+Key: 3 value: 6
+Key: 4 value: 3
+Key: 5 value: 7
+Key: 6 value: 4
+Key: 7 value: 16
+Key: 8 value: 18
+Key: 9 value: 19
+Key: 10 value: 15
+Key: 11 value: 17
+Key: 12 value: 11
+Key: 13 value: 14
+Key: 14 value: 13
+Key: 15 value: 9
+Key: 16 value: 8
+Key: 17 value: 10
+Key: 18 value: 20
+Key: 19 value: 21
+Key: 20 value: 12
+Key: 21 value: 23
+Key: 22 value: 22
+Key: 23 value: 24
+
+---------------TYPE 1477---------------
+SKILL_LEVEL_ADV
+Key: 1 value: You've just advanced an Attack level!
+Key: 2 value: You've just advanced a Strength level!
+Key: 3 value: You've just advanced a Ranged level!
+Key: 4 value: You've just advanced a Magic level!
+Key: 5 value: You've just advanced a Defence level!
+Key: 6 value: You've just advanced a Hitpoints level!
+Key: 7 value: You've just advanced a Prayer level!
+Key: 8 value: You've just advanced an Agility level!
+Key: 9 value: You've just advanced a Herblore level!
+Key: 10 value: You've just advanced a Thieving level!
+Key: 11 value: You've just advanced a Crafting level!
+Key: 12 value: You've just advanced a Runecrafting level!
+Key: 13 value: You've just advanced a Mining level!
+Key: 14 value: You've just advanced a Smithing level!
+Key: 15 value: You've just advanced a Fishing level!
+Key: 16 value: You've just advanced a Cooking level!
+Key: 17 value: You've just advanced a Firemaking level!
+Key: 18 value: You've just advanced a Woodcutting level!
+Key: 19 value: You've just advanced a Fletching level!
+Key: 20 value: You've just advanced a Slayer level!
+Key: 21 value: You've just advanced a Farming level!
+Key: 22 value: You've just advanced a Construction level!
+Key: 23 value: You've just advanced a Hunter level!
+Key: 24 value: You've just advanced a Summoning level!
+
+---------------TYPE 1478---------------
+Default: -1
+Key: 1 value: 3
+Key: 2 value: 6
+Key: 3 value: 8
+Key: 4 value: 187
+Key: 5 value: 7
+Key: 6 value: 188
+Key: 7 value: 167
+Key: 8 value: 189
+Key: 9 value: 190
+Key: 10 value: 191
+Key: 11 value: 192
+Key: 12 value: 292
+Key: 13 value: 194
+Key: 14 value: 228
+Key: 15 value: 229
+Key: 16 value: 230
+Key: 17 value: 231
+Key: 18 value: 232
+Key: 19 value: 193
+Key: 20 value: 359
+Key: 21 value: 360
+Key: 22 value: 364
+Key: 23 value: 363
+Key: 24 value: 365
+
+---------------TYPE 1479---------------
+LEVELADV_SOUNDEFFECT_1
+Default: 317
+Key: 1 value: 29
+Key: 2 value: 65
+Key: 3 value: 57
+Key: 4 value: 51
+Key: 5 value: 37
+Key: 6 value: 47
+Key: 7 value: 55
+Key: 8 value: 28
+Key: 9 value: 45
+Key: 10 value: 67
+Key: 11 value: 35
+Key: 12 value: 59
+Key: 13 value: 53
+Key: 14 value: 63
+Key: 15 value: 41
+Key: 16 value: 33
+Key: 17 value: 39
+Key: 18 value: 69
+Key: 19 value: 43
+Key: 20 value: 61
+Key: 21 value: 11
+Key: 22 value: 31
+Key: 23 value: 49
+Key: 24 value: 300
+
+---------------TYPE 1480---------------
+LEVELADV_SOUNDEFFECT_2
+Default: 317
+Key: 1 value: 30
+Key: 2 value: 66
+Key: 3 value: 58
+Key: 4 value: 52
+Key: 5 value: 38
+Key: 6 value: 48
+Key: 7 value: 56
+Key: 8 value: 322
+Key: 9 value: 46
+Key: 10 value: 68
+Key: 11 value: 36
+Key: 12 value: 60
+Key: 13 value: 54
+Key: 14 value: 64
+Key: 15 value: 42
+Key: 16 value: 34
+Key: 17 value: 40
+Key: 18 value: 70
+Key: 19 value: 44
+Key: 20 value: 62
+Key: 21 value: 10
+Key: 22 value: 32
+Key: 23 value: 50
+Key: 24 value: 301
+
+
+---------------TYPE 1483---------------
+Default: -1
+Key: 1 value: 93
+Key: 2 value: 112
+Key: 3 value: 109
+Key: 4 value: 105
+Key: 5 value: 97
+Key: 6 value: 93
+Key: 7 value: 107
+Key: 8 value: 92
+Key: 9 value: 102
+Key: 10 value: 114
+Key: 11 value: 96
+Key: 12 value: 108
+Key: 13 value: 106
+Key: 14 value: 111
+Key: 15 value: 100
+Key: 16 value: 95
+Key: 17 value: 99
+Key: 18 value: 115
+Key: 19 value: 101
+Key: 20 value: 110
+Key: 21 value: 98
+Key: 22 value: 94
+Key: 23 value: 104
+Key: 24 value: 113

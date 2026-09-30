@@ -1,0 +1,16 @@
+Version Difference: 25 -> 28
+Compared area 44 46 and found differences!
+Printing different objects: 
+----------SOURCE----------
+[GameMapObject [id=324 null , typrot=91, position=x: 2848 y: 2955 z:1]
+ GameMapObject [id=325 null , typrot=90, position=x: 2847 y: 2955 z:1]]
+----------TARGET----------
+[GameMapObject [id=1982 null , typrot=2, position=x: 2868 y: 2976 z:1]
+ GameMapObject [id=1982 null , typrot=2, position=x: 2868 y: 2977 z:1]
+ GameMapObject [id=1982 null , typrot=2, position=x: 2868 y: 2978 z:1]
+ GameMapObject [id=1982 null , typrot=2, position=x: 2868 y: 2979 z:1]
+ GameMapObject [id=1982 null , typrot=11, position=x: 2870 y: 2976 z:1]
+ GameMapObject [id=1982 null , typrot=0, position=x: 2870 y: 2977 z:1]
+ GameMapObject [id=1982 null , typrot=0, position=x: 2870 y: 2978 z:1]
+ GameMapObject [id=1982 null , typrot=0, position=x: 2870 y: 2979 z:1]
+ GameMapObject [id=10536 Stepping stone , typrot=88, position=x: 2860 y: 2974 z:0]]

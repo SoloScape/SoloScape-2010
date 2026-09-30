@@ -1,0 +1,45 @@
+			switch (object.getId()) {
+			case 15307:
+			case 15308:
+			case 15309:
+			case 15310:
+			case 15311:
+			case 15312:
+			case 15313:
+			case 15314:
+			case 15315:
+			case 15316:
+				if (!player.getHouse().buildingMode()) {
+					player.sendMessage("You can only do that in building mode.", 99);
+				}
+				int xChunk = player.getPosition().getAreaChunkX();
+				int yChunk = player.getPosition().getAreaChunkY();
+				int height = player.getPosition().getHeight();
+				int mask = 0;
+				if (xTile == 0) {
+					xChunk--;
+					mask = Door.EAST;
+				} else if (yTile == 0) {
+					yChunk--;
+					mask = Door.NORTH;
+				} else if (xTile == 7) {
+					xChunk++;
+					mask = Door.WEST;
+				} else if (yTile == 7) {
+					yChunk++;
+					mask = Door.SOUTH;
+				}
+				Room buildSource = Room.PARLOUR.copy(player.getHouse());
+				try {
+					Template template = new Template(player.getHouse(), buildSource, mask, xChunk, yChunk, height);
+					player.getHouse().setChunk(template, xChunk, yChunk, height);
+					template.rotate(template.getRotation());
+					player.getHouse().setTemplate(template);
+				} catch (Exception e) {
+					player.sendMessage(e.getMessage(), 99);
+					if(player.getHouse().getTemplate() != null) {
+						player.getHouse().getTemplate().cancel();
+					}
+				}
+				break;
+			}

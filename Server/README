@@ -1,0 +1,117 @@
+     _____                      ______                 _       _             
+    / ____|                    |  ____|               | |     | |            
+   | (___   ___ __ _ _ __   ___| |__   _ __ ___  _   _| | __ _| |_ ___  _ __ 
+    \___ \ / __/ _` | '_ \ / _ \  __| | '_ ` _ \| | | | |/ _` | __/ _ \| '__|
+    ____) | (_| (_| | |_) |  __/ |____| | | | | | |_| | | (_| | || (_) | |   
+   |_____/ \___\__,_| .__/ \___|______|_| |_| |_|\__,_|_|\__,_|\__\___/|_|   
+                    | |                                                      
+                    |_|                                                      
+
+ScapeEmulator is a RuneScape server emulator which targets build 592 of the
+game. The matching client and its bundling tools live in the sibling
+`10-Client` repository.
+
+The following third-party libraries are used:
+
+  * JUnit
+  * SLF4J
+  * APIviz
+  * Netty 4
+  * MySQL Connector/J
+
+A rough guide of how to get it working (on a UNIX-like system such as Linux:)
+
+  1. Generate a keystore:
+
+     cd util/data
+     ./mkkeystore
+
+  2. Compile, run unit tests and generate Javadoc:
+
+     mvn compile test javadoc:aggregate
+
+  3. Generate RSA key:
+
+     cd util
+     java -cp ... net.scapeemulator.util.crypto.RsaKeyGenerator
+     # then manually place the RSA key in src/main/java/net/scapeemulator/util/
+     #   crypto/RsaKeySet.java
+
+  4. Recompile with the RSA key now in place:
+
+     mvn compile
+
+  5. Generate and sign client jar/pack200 files from the sibling client
+     repository:
+
+     cd ../10-Client
+     build.bat
+
+  6. Copy example serializer configuration into place:
+
+     cd game/data
+     cp serializer.conf.example serializer.conf
+
+  7. Launch game server:
+
+     cd game
+     java -cp ... net.scapeemulator.game.GameServer
+
+  8. The Windows `run.bat` automatically serves files from
+     `../10-Client/www`. For another location, set `SCAPE_CLIENT_DIR` to its
+     `www` directory. Point your Internet browser to
+     http://127.0.0.1:8080/index_gl.html and
+     login with a username and password of your choosing. If the OpenGL client
+     does not work, you can also use index.html or index_unsigned.html.
+
+The example serializer configuration as used above makes the server use a
+'dummy' serializer. Any username/password works, and players are not saved. To
+provide proper persistence, the MySQL serializer must be used.
+
+Setting up MySQL is beyond the scope of this README, but once it has been done,
+to set up persistence you should:
+
+  1. Import the database schema:
+
+     cd unpackaged
+     mysql -hHOST -uUSERNAME -pPASSWORD DATABASE < schema.sql
+
+  2. Update serializer.conf:
+
+     cd game/data
+     cat >serializer.conf <<EOF
+     type=jdbc
+     url=jdbc:mysql://HOST/DATABASE
+     username=USERNAME
+     password=PASSWORD
+     EOF
+
+  3. Manually create a user in the MySQL database. You'll also need to hash
+     the password manually with bcrypt. There's no automated tool for doing
+     this, sorry, and registration in the game is not functional.
+
+  4. Launch game server and web browser, as above. Login with the username and
+     password you created in the previous step.
+
+I've released this because I don't see myself doing any further RSPS
+development, and there is no point leaving it languishing on my hard disk. I
+have been rather reluctant to even tell other people this project was in
+development, because I do not want it to detract from the work people are doing
+on Apollo. Apollo is a perfectly decent server, and it has many features this
+server lacks (such as multi-protocol support, multithreaded player updating and
+Ruby plugin support.) Some projects have made some really good progress with it,
+which I'm really happy about. So, if you're using Apollo, then please just carry
+on with your Apollo project, rather than losing all the progress that has been
+made to make a completely unnecessary switch.
+
+However, that said, if you are planning on making a new 5xx project, then this
+is probably your best choice of server to use for it, as Apollo was originally
+designed for use with the old engine only, and ScapeEmulator far exceeds the
+capabilities and quality of existing new engine servers such as rs2hd.
+
+Credit should go to my brother, Jonathan, who also contributed some code.
+
+ScapeEmulator is released under the terms of the ISC license, see the LICENSE
+file for the copyright information and license terms.
+
+- Graham

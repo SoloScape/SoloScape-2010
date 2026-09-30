@@ -1,0 +1,48 @@
+Manifest-Version: 1.0
+Created-By: 1.8.0_101 (Oracle Corporation)
+
+Name: c.class
+SHA-256-Digest: miACSBGCpm1EqphuyfaXlg14cztGyDgwQWrEype1oOw=
+
+Name: of.class
+SHA-256-Digest: SW3uq+f1E6Kf/EJefFo2YZpdXCla+k2ow0z93YG2ZM4=
+
+Name: unpack.class
+SHA-256-Digest: 6WJPrNUbV7wpJogaT9bsNUMOMivvvV0LAxl2CuWegdo=
+
+Name: a.class
+SHA-256-Digest: qewlqhn3Hs8Nk5A6fe8810aVs7O2A0MvPpsPKx2/lRU=
+
+Name: b.class
+SHA-256-Digest: 4lK5bZAMkuzTTAa7ARbTjxXdTxkd074ggmaaSzrazGU=
+
+Name: rp.class
+SHA-256-Digest: h6SItT1guouP8/HYmAnnLcepTfpAMSJ2tpMO7ebGPwU=
+
+Name: f.class
+SHA-256-Digest: K3+oMF1hdO+cEY2YFMRToX2mD2J3jxO5xLFP3X3/gVg=
+
+Name: loader.class
+SHA-256-Digest: GAUKS2VvALaxp5sSLQXV3bvY3wPwTVr65YvoA7qJSJo=
+
+Name: qn.class
+SHA-256-Digest: zv03WQjtuWh/zCsWp+ZY+doMwka7YRARjp17zKBhNeg=
+
+Name: qt.class
+SHA-256-Digest: VWvSkDyVH+AwQ5k/NhMO/fyXauTc73XEUr8vnmKpfqc=
+
+Name: e.class
+SHA-256-Digest: DsdYSAfL6wKdHjLsdJKI/UWaQo/Wi/IckFcmncQx7DI=
+
+Name: et.class
+SHA-256-Digest: OMS8lUSQXaCkPOvzutnVybJtFNK13L5ILtwIoUGBU9Q=
+
+Name: g.class
+SHA-256-Digest: IRUbnQkJJCp5wVGm5wTqOwad2t6zgasOuJhwDp62Rjs=
+
+Name: d.class
+SHA-256-Digest: 2jwIrJpSBAC6DJHMf9+UkzuGp0vaeojmD7fG4Xzr9pU=
+
+Name: h.class
+SHA-256-Digest: pWD0usctg9CScWpXOOOo9DC7cuUwFC+vk3ilY+xkb44=
+

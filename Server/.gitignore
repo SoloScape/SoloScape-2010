@@ -1,0 +1,7 @@
+# Maven/build output anywhere in the repository
+**/target/
+**/classes/
+**/out/
+
+# Compiled Java files
+*.class
