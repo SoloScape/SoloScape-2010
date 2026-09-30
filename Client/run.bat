@@ -29,7 +29,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$ProgressPreference='SilentlyContinue'; try { $response=Invoke-WebRequest -UseBasicParsing -Uri '%CLIENT_URL%' -TimeoutSec 3; if($response.StatusCode -ne 200){exit 1} } catch { exit 1 }"
 if errorlevel 1 (
     echo [ERROR] The ScapeEmulator server is not available at 127.0.0.1:8080.
-    echo Start C:\Users\Callum\Documents\GitHub\10-Server\run.bat first.
+    echo Start %~dp0..\Server\run.bat first.
     pause
     exit /b 1
 )

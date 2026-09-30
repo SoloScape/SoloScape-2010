@@ -7,11 +7,11 @@ set "WORLD_ID=%~1"
 if not defined WORLD_ID set "WORLD_ID=1"
 
 set "CLIENT_DIR=%SCAPE_CLIENT_DIR%"
-if not defined CLIENT_DIR set "CLIENT_DIR=%~dp0..\10-Client\www"
+if not defined CLIENT_DIR set "CLIENT_DIR=%~dp0..\Client\www"
 if not exist "%CLIENT_DIR%\index.html" (
     echo [ERROR] Client files were not found.
     echo Expected: %CLIENT_DIR%\index.html
-    echo Set SCAPE_CLIENT_DIR to the 10-Client\www directory if it is elsewhere.
+    echo Set SCAPE_CLIENT_DIR to the Client\www directory if it is elsewhere.
     pause
     exit /b 1
 )

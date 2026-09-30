@@ -19,16 +19,15 @@ build.bat
 ```
 
 The bundler writes the patched client, loader, Pack200 files, and native
-libraries to `../www`. The sibling `10-Server\run.bat` uses that directory by
-default. If the repositories are not siblings, set `SCAPE_CLIENT_DIR` to the
-absolute path of this repository's `www` directory before starting the server.
+libraries to `../www`. The `Server\run.bat` launcher uses that directory by default. Set
+`SCAPE_CLIENT_DIR` to an alternate `www` directory if needed.
 
 The RSA modulus in `RsaTransformer` is public client configuration and must
 match the server's key pair if the keys are regenerated.
 
 ## Run
 
-Start the sibling server first, then launch the client:
+Start `Server\run.bat` first, then launch the client:
 
 ```bat
 run.bat

@@ -8,8 +8,7 @@
                     |_|                                                      
 
 ScapeEmulator is a RuneScape server emulator which targets build 592 of the
-game. The matching client and its bundling tools live in the sibling
-`10-Client` repository.
+game. The matching client and its bundling tools live in the `Client` directory.
 
 The following third-party libraries are used:
 
@@ -41,10 +40,9 @@ A rough guide of how to get it working (on a UNIX-like system such as Linux:)
 
      mvn compile
 
-  5. Generate and sign client jar/pack200 files from the sibling client
-     repository:
+  5. Generate and sign client jar/pack200 files from the client directory:
 
-     cd ../10-Client
+     cd ../Client
      build.bat
 
   6. Copy example serializer configuration into place:
@@ -58,7 +56,7 @@ A rough guide of how to get it working (on a UNIX-like system such as Linux:)
      java -cp ... net.scapeemulator.game.GameServer
 
   8. The Windows `run.bat` automatically serves files from
-     `../10-Client/www`. For another location, set `SCAPE_CLIENT_DIR` to its
+     `../Client/www`. For another location, set `SCAPE_CLIENT_DIR` to its
      `www` directory. Point your Internet browser to
      http://127.0.0.1:8080/index_gl.html and
      login with a username and password of your choosing. If the OpenGL client
