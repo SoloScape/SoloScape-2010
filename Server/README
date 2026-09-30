@@ -45,7 +45,8 @@ A rough guide of how to get it working (on a UNIX-like system such as Linux:)
      cd ../Client
      build.bat
 
-  6. Copy example serializer configuration into place:
+  6. On Windows, `run.bat` copies the example serializer configuration on
+     first run if `game/data/serializer.conf` is missing. For manual setup:
 
      cd game/data
      cp serializer.conf.example serializer.conf

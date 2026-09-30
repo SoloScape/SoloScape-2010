@@ -6,6 +6,21 @@ title ScapeEmulator 592 - Run
 set "WORLD_ID=%~1"
 if not defined WORLD_ID set "WORLD_ID=1"
 
+if not exist "game\data\serializer.conf" (
+    if not exist "game\data\serializer.conf.example" (
+        echo [ERROR] Missing game\data\serializer.conf.example.
+        pause
+        exit /b 1
+    )
+    copy /Y "game\data\serializer.conf.example" "game\data\serializer.conf" >nul
+    if errorlevel 1 (
+        echo [ERROR] Could not create game\data\serializer.conf.
+        pause
+        exit /b 1
+    )
+    echo Created game\data\serializer.conf from the example.
+)
+
 set "CLIENT_DIR=%SCAPE_CLIENT_DIR%"
 if not defined CLIENT_DIR set "CLIENT_DIR=%~dp0..\Client\www"
 if not exist "%CLIENT_DIR%\index.html" (

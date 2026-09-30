@@ -3,7 +3,7 @@ setlocal EnableExtensions DisableDelayedExpansion
 cd /d "%~dp0"
 title ScapeEmulator 592 - Client
 
-set "CLIENT_URL=http://127.0.0.1:8080/index_unsigned.html"
+set "CLIENT_URL=http://127.0.0.1:8080/index.html"
 
 if not exist "www\loader.jar" (
     echo [ERROR] The client has not been built yet.
@@ -14,12 +14,11 @@ if not exist "www\loader.jar" (
 )
 
 set "APPLETVIEWER_EXE="
-for /f "delims=" %%J in ('where appletviewer 2^>nul') do if not defined APPLETVIEWER_EXE set "APPLETVIEWER_EXE=%%J"
-if not defined APPLETVIEWER_EXE if defined JAVA_HOME if exist "%JAVA_HOME%\bin\appletviewer.exe" set "APPLETVIEWER_EXE=%JAVA_HOME%\bin\appletviewer.exe"
+for /f "delims=" %%J in ('powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0select-appletviewer.ps1"') do if not defined APPLETVIEWER_EXE set "APPLETVIEWER_EXE=%%J"
 
 if not defined APPLETVIEWER_EXE (
-    echo [ERROR] Java appletviewer was not found.
-    echo Install or select a Java 8 JDK and ensure its bin directory is on PATH.
+    echo [ERROR] A 32-bit Java 8 appletviewer was not found.
+    echo Install a 32-bit Java 8 JDK, then run this file again.
     pause
     exit /b 1
 )

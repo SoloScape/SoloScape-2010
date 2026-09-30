@@ -34,9 +34,9 @@ run.bat
 ```
 
 The launcher checks that the client is built and the local server is available,
-then opens the direct client page at
-`http://127.0.0.1:8080/index_unsigned.html` with the Java 8 applet viewer.
-Modern web browsers no longer run Java applets, so a JDK containing
-`appletviewer.exe` is required. The launcher also applies `client.policy`, which
-grants the local client the native-library and cache permissions formerly
-provided by the signed loader.
+then opens the signed loader at `http://127.0.0.1:8080/index.html` with a
+32-bit Java 8 applet viewer. The loader installs the game and graphics libraries
+into the client cache. This build contains only 32-bit Windows native libraries,
+so a 64-bit Java runtime cannot run HD mode. Modern browsers no longer support
+Java applets; install a 32-bit Java 8 JDK containing `appletviewer.exe`. The
+launcher also applies `client.policy` for local cache and native-library access.

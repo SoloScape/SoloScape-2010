@@ -31,7 +31,7 @@ public final class FileProvider implements Service {
 
 	public FileRegion serve(String path) throws IOException {
 		path = rewrite(path);
-		if (codeOnly && !path.matches("^/(jogl_\\d_\\d\\.lib|(loader|loader_gl|runescape)\\.jar|(jogl|runescape|runescape_gl)\\.pack200|unpackclass.pack)$"))
+		if (codeOnly && !path.matches("^/(jogl_\\d_\\d\\.lib|(jaggl|jagmisc|sw3d)_\\d+\\.lib|(loader|loader_gl|runescape)\\.jar|(jogl|runescape|runescape_gl)\\.pack200|unpackclass.pack)$"))
 			return null;
 
 		File f = new File(root, path);
@@ -45,6 +45,12 @@ public final class FileProvider implements Service {
 	}
 
 	private String rewrite(String path) {
+		Pattern nativePattern = Pattern.compile("^/(jaggl|jagmisc|sw3d)_(\\d+)_-?\\d+\\.lib$");
+		Matcher nativeMatcher = nativePattern.matcher(path);
+		if (nativeMatcher.matches()) {
+			return "/" + nativeMatcher.group(1) + "_" + nativeMatcher.group(2) + ".lib";
+		}
+
 		Pattern pattern = Pattern.compile("^/jogl_(\\d)_(\\d)_-?\\d+\\.lib$");
 		Matcher matcher = pattern.matcher(path);
 		if (matcher.matches()) {
