@@ -68,7 +68,7 @@ A rough guide of how to get it working (on a UNIX-like system such as Linux:)
   8. The Windows `run.bat` automatically serves files from
      `../Client/www`. For another location, set `SCAPE_CLIENT_DIR` to its
      `www` directory. Point your Internet browser to
-     http://127.0.0.1:8080/index_gl.html and
+     http://127.0.0.1:8081/index_gl.html and
      login with a username and password of your choosing. If the OpenGL client
      does not work, you can also use index.html or index_unsigned.html.
 

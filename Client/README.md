@@ -7,7 +7,7 @@ the bytecode bundler that adapts the client to the ScapeEmulator server.
 
 - `asm/data` contains the original client, loader, unpacker, and native inputs.
 - `asm/src` contains the bytecode transformations and bundler.
-- `www` contains the files served by the game server on port 8080.
+- `www` contains the files served by the game server on port 8081.
 
 ## Build
 
@@ -34,7 +34,7 @@ run.bat
 ```
 
 The launcher checks that the client is built and the local server is available,
-then opens the signed loader at `http://127.0.0.1:8080/index.html` with a
+then opens the signed loader at `http://127.0.0.1:8081/index.html` with a
 32-bit Java 8 applet viewer. The loader installs the game and graphics libraries
 into the client cache. This build contains only 32-bit Windows native libraries,
 so a 64-bit Java runtime cannot run HD mode. Modern browsers no longer support

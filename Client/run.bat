@@ -3,7 +3,7 @@ setlocal EnableExtensions DisableDelayedExpansion
 cd /d "%~dp0"
 title ScapeEmulator 592 - Client
 
-set "CLIENT_URL=http://127.0.0.1:8080/index.html"
+set "CLIENT_URL=http://127.0.0.1:8081/index.html"
 
 if not exist "www\loader.jar" (
     echo [ERROR] The client has not been built yet.
@@ -27,7 +27,7 @@ echo Checking server at %CLIENT_URL%...
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$ProgressPreference='SilentlyContinue'; try { $response=Invoke-WebRequest -UseBasicParsing -Uri '%CLIENT_URL%' -TimeoutSec 3; if($response.StatusCode -ne 200){exit 1} } catch { exit 1 }"
 if errorlevel 1 (
-    echo [ERROR] The ScapeEmulator server is not available at 127.0.0.1:8080.
+    echo [ERROR] The ScapeEmulator server is not available at 127.0.0.1:8081.
     echo Start %~dp0..\Server\run.bat first.
     pause
     exit /b 1
