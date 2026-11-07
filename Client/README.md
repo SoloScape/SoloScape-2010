@@ -25,7 +25,19 @@ libraries to `../www`. The `Server\run.bat` launcher uses that directory by defa
 The RSA modulus in `RsaTransformer` is public client configuration and must
 match the server's key pair if the keys are regenerated.
 
+After building, run the camera input smoke test from `Client` in PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force asm/target/test-classes | Out-Null
+javac -d asm/target/test-classes asm/src/test/java/net/scapeemulator/asm/bundler/MiddleMouseCameraTest.java
+java '-Xverify:all' '-Djava.awt.headless=true' -cp asm/target/test-classes net.scapeemulator.asm.bundler.MiddleMouseCameraTest www/runescape.jar
+```
+
 ## Run
+
+Hold the middle mouse button and drag to rotate the camera horizontally or
+vertically. Rotation uses reduced sensitivity and eases out briefly after a drag
+for smoother movement; the normal camera pitch limits still apply.
 
 Start `Server\run.bat` first, then launch the client:
 

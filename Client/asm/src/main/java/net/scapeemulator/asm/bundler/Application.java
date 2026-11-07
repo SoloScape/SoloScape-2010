@@ -158,4 +158,25 @@ public final class Application {
 			transformer.transform(node);
 	}
 
+	/** Adds a runtime helper that uses only Java 6 language and bytecode features. */
+	public void addLegacyClass(Class<?> type) throws IOException {
+		String resource = type.getName().replace('.', '/') + ".class";
+		try (InputStream in = type.getClassLoader().getResourceAsStream(resource)) {
+			if (in == null)
+				throw new IOException("Missing bundled class " + resource);
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			byte[] buffer = new byte[4096];
+			int count;
+			while ((count = in.read(buffer)) != -1)
+				out.write(buffer, 0, count);
+			byte[] bytes = out.toByteArray();
+			// ASM 4 predates Java 8. This helper has no Java 7/8 bytecode features.
+			bytes[6] = 0;
+			bytes[7] = 50;
+			ClassNode node = new ClassNode();
+			new ClassReader(bytes).accept(node, 0);
+			classes.put(resource, node);
+		}
+	}
+
 }

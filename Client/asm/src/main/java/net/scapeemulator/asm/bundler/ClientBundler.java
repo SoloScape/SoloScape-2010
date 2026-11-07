@@ -44,6 +44,12 @@ public final class ClientBundler {
 		// glClient.transform(transformer);
 
 		/* write everything but the loaders back out */
+		logger.info("Adding middle mouse camera rotation...");
+		MiddleMouseCameraTransformer camera = new MiddleMouseCameraTransformer();
+		client.transform(camera);
+		camera.verify();
+		client.addLegacyClass(net.scapeemulator.asm.bundler.input.MiddleMouseCamera.class);
+
 		logger.info("Bundling clients and libraries...");
 		File clientOut = new File("../www/runescape.pack200");
 		// File glClientOut = new File("../www/runescape_gl.pack200");
