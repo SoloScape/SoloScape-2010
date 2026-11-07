@@ -13,7 +13,7 @@ public final class CacheAggregator {
 
 	public static void main(String[] args) throws IOException {
 		FileStore otherStore = FileStore.open("/home/graham/Downloads/rscd/data/");
-		FileStore store = FileStore.open("../game/data/cache/");
+		FileStore store = FileStore.open("../cache/");
 
 		for (int type = 0; type < store.getFileCount(255); type++) {
 			if (type == 7) continue; // TODO need support for newer ref table format for this index

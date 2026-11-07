@@ -28,7 +28,7 @@ public class MapKeyValidator {
 	private static int failed;
 	private static int succesful;
 	private static final Logger logger = LoggerFactory.getLogger(MapKeyValidator.class);
-	private static String directory = "./data/landscape-keys", cacheDirectory = "../resources/cache",
+	private static String directory = "./data/landscape-keys", cacheDirectory = "../cache",
 			missingFile = "Missing Areas.txt";
 	private static ReferenceTable rt;
 	private static List<String> succesfull = new ArrayList<>();

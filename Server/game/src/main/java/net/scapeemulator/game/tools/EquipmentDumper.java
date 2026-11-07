@@ -22,7 +22,7 @@ public final class EquipmentDumper {
 	public static void main(String[] args) throws IOException {
 		logger.info("Dumping equipment data...");
 
-		Cache cache = new Cache(FileStore.open("../resources/cache"));
+		Cache cache = new Cache(FileStore.open("../cache"));
 		ItemDefinition.init(cache, true);
 
 		try (DataOutputStream output = new DataOutputStream(new FileOutputStream("data/equipment.dat"))) {

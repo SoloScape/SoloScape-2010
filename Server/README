@@ -10,6 +10,15 @@
 ScapeEmulator is a RuneScape server emulator which targets build 592 of the
 game. The matching client and its bundling tools live in the `Client` directory.
 
+Before building or running, download cache.zip from:
+https://github.com/SoloScape/SoloScape-2010/releases
+
+Extract main_file_cache.dat2 and all main_file_cache.idx* files directly into
+Server/cache, alongside its existing src directory and pom.xml. Do not extract
+them into an extra nested cache directory. Game, login, tests, and cache tools
+use ../cache relative to their module directories. Cache data is ignored by Git
+and distributed through Releases; Git LFS is not required for the cache.
+
 The following third-party libraries are used:
 
   * JUnit

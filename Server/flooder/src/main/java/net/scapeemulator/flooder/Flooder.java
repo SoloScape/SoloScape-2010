@@ -34,7 +34,7 @@ public final class Flooder {
 	private final Bootstrap bootstrap = new Bootstrap();
 
 	public Flooder() throws IOException {
-		cache = new Cache(FileStore.open("../game/data/cache/"));
+		cache = new Cache(FileStore.open("../cache/"));
 		ChecksumTable table = cache.createChecksumTable();
 		int[] crc = new int[28];
 		for (int i = 0; i < crc.length; i++)

@@ -5,3 +5,8 @@
 
 # Compiled Java files
 *.class
+
+# Game cache is distributed through GitHub Releases
+/cache/main_file_cache.*
+/cache.zip
+/resources/cache.zip

@@ -18,7 +18,7 @@ public class InventoryTest {
 	@Before
 	public void setUp() throws Exception {
 		world = World.getWorld(WorldConfiguration.parse("data/world.conf"));
-		Cache cache = new Cache(FileStore.open("../resources/cache"));
+		Cache cache = new Cache(FileStore.open("../cache"));
 		ItemDefinition.init(cache, true);
 	}
 

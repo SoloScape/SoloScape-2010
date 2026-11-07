@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 public final class CacheDefragmenter {
 
 	public static void main(String[] args) throws IOException {
-		try (FileStore in = FileStore.open("../game/data/cache/")) {
+		try (FileStore in = FileStore.open("../cache/")) {
 			try (FileStore out = FileStore.create("/tmp/defragmented-cache", in.getTypeCount())) {
 				for (int type = 0; type < in.getTypeCount(); type++) {
 					ByteBuffer buf = in.read(255, type);

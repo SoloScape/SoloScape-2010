@@ -12,7 +12,7 @@ import java.util.zip.CRC32;
 public final class CacheVerifier {
 
 	public static void main(String[] args) throws IOException {
-		try (FileStore store = FileStore.open("../game/data/cache/")) {
+		try (FileStore store = FileStore.open("../cache/")) {
 			for (int type = 0; type < store.getFileCount(255); type++) {
 				ReferenceTable table = ReferenceTable.decode(Container.decode(store.read(255, type)).getData());
 				for (int file = 0; file < table.capacity(); file++) {
