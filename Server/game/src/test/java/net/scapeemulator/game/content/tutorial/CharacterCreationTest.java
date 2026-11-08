@@ -2,6 +2,7 @@ package net.scapeemulator.game.content.tutorial;
 
 import net.scapeemulator.cache.def.GameConstantContainer;
 import net.scapeemulator.game.cache.GameConstants;
+import net.scapeemulator.game.cache.StructDefinition;
 import net.scapeemulator.game.cache.VarBitDefinition;
 import net.scapeemulator.game.model.hud.DisplayMode;
 import net.scapeemulator.game.model.player.Gender;
@@ -21,20 +22,31 @@ import static org.junit.Assert.*;
 public class CharacterCreationTest {
     private final Map<Integer, GameConstantContainer<?>> previous = new HashMap<>();
     private Map<Integer, VarBitDefinition> originalVarbits;
+    private Map<Integer, Map<Integer, Integer>> originalStructs;
 
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         int[] enums = {2338, 703, 690, 711, 749, 1586, 1136,
                 2341, 1591, 693, 751, 1607, 1137,
-                2345, 2349, 2351, 753, 748};
+                2345, 2349, 2351, 1589, 748};
         for (int id : enums) {
             previous.put(id, GameConstants.getDefMap().get(id));
             Map<Integer, Integer> options = new HashMap<>();
-            options.put(0, id == 753 ? 5783592 : 10 + id % 20);
-            options.put(1, id == 753 ? 4210688 : 11 + id % 20);
+            options.put(0, id == 1589 ? 3680 : 10 + id % 20);
+            options.put(1, id == 1589 ? 3683 : 11 + id % 20);
             GameConstants.getDefMap().put(id, new GameConstantContainer<>(0, options));
         }
+        Field structField = StructDefinition.class.getDeclaredField("definitions");
+        structField.setAccessible(true);
+        originalStructs = (Map<Integer, Map<Integer, Integer>>) structField.get(null);
+        Map<Integer, Map<Integer, Integer>> structs = new HashMap<>(originalStructs);
+        structs.put(28, hairStruct(8, 600));
+        structs.put(29, hairStruct(12, 601));
+        structs.put(11, hairStruct(223, 700));
+        structs.put(12, hairStruct(224, 701));
+        structField.set(null, structs);
+
         Field field = VarBitDefinition.class.getDeclaredField("definitions");
         field.setAccessible(true);
         originalVarbits = (Map<Integer, VarBitDefinition>) field.get(null);
@@ -46,6 +58,13 @@ public class CharacterCreationTest {
         field.set(null, definitions);
     }
 
+    private Map<Integer, Integer> hairStruct(int kit, int chathead) {
+        Map<Integer, Integer> params = new HashMap<>();
+        params.put(788, kit);
+        params.put(791, chathead);
+        return params;
+    }
+
     @After
     public void tearDown() throws Exception {
         for (Map.Entry<Integer, GameConstantContainer<?>> entry : previous.entrySet()) {
@@ -55,6 +74,9 @@ public class CharacterCreationTest {
         Field field = VarBitDefinition.class.getDeclaredField("definitions");
         field.setAccessible(true);
         field.set(null, originalVarbits);
+        Field structField = StructDefinition.class.getDeclaredField("definitions");
+        structField.setAccessible(true);
+        structField.set(null, originalStructs);
     }
 
     private void click(Player player, int option, int child, int slot) {
@@ -80,19 +102,21 @@ public class CharacterCreationTest {
 
         click(player, 1, 37, -1); // Hair category
         assertEquals(1, player.getCharacterCreationCategory());
-        assertEquals(1, player.getStatus().getVarC(1020));
+        assertEquals(0, player.getStatus().getVarC(1020)); // Do not force the client back to Skin.
         click(player, 1, 66, 5); // Second hairstyle (3 children per option)
-        assertEquals(12, player.getAppearance().getStyle(0)); // enum 2341: 11 + (2341 % 20)
-        assertEquals(12, player.getStatus().getVarC(1008));
+        assertEquals(224, player.getAppearance().getStyle(0)); // enum 2341 -> struct 12 -> param 788
+        assertEquals(224, player.getStatus().getVarC(1008));
+        assertEquals(1, player.getCharacterCreationCategory());
         click(player, 1, 73, 3); // Second hair colour
         assertEquals(16, player.getAppearance().getColor(0)); // enum 2345: 11 + (2345 % 20)
+        assertEquals(1, player.getCharacterCreationCategory());
 
         click(player, 1, 41, -1); // Female characters have no beard category.
         assertEquals(1, player.getCharacterCreationCategory());
 
-        click(player, 1, 61, -1); // Footwear colour uses its index, not its RGB value.
+        click(player, 1, 61, -1); // Footwear colour enum 1589 uses IDs offset by 3680.
         click(player, 1, 73, 3);
-        assertEquals(1, player.getAppearance().getColor(3));
+        assertEquals(3, player.getAppearance().getColor(3));
         click(player, 0, 15, -1);
         assertEquals(Gender.MALE, player.getAppearance().getGender());
         assertEquals(0, player.getCharacterCreationCategory());
@@ -102,6 +126,32 @@ public class CharacterCreationTest {
         click(player, 0, 81, -1);
         assertTrue(player.isCharacterCreationRequired());
         assertSame(CharacterCreation.INSTANCE, player.getDisplay().getInterface(900));
+    }
+
+    @Test
+    public void skinSelectionDoesNotAlterClothingAndModelsKeepTheirCategory() {
+        Player player = new Player();
+        player.setCharacterCreationRequired(true);
+        player.getDisplay().initialize(DisplayMode.FIXED);
+        CharacterCreation.openIfRequired(player);
+        int originalTop = player.getAppearance().getColor(1);
+        int originalLegs = player.getAppearance().getColor(2);
+
+        click(player, 0, 33, -1); // Skin tab
+        click(player, 1, 73, 3); // Select a different skin colour
+        assertEquals(19, player.getAppearance().getColor(4));
+        assertEquals(originalTop, player.getAppearance().getColor(1));
+        assertEquals(originalLegs, player.getAppearance().getColor(2));
+
+        click(player, 0, 45, -1); // Top model category
+        click(player, 1, 66, 5); // Choose model two
+        assertEquals(3, player.getCharacterCreationCategory());
+        assertEquals(21, player.getAppearance().getStyle(2));
+        click(player, 0, 49, -1); // Sleeves model category
+        click(player, 1, 66, 5);
+        assertEquals(4, player.getCharacterCreationCategory());
+        assertEquals(22, player.getAppearance().getStyle(3));
+        assertEquals(originalTop, player.getAppearance().getColor(1));
     }
 
     @Test
