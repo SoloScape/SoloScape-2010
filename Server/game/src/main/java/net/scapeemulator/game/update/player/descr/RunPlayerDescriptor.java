@@ -24,21 +24,10 @@ public final class RunPlayerDescriptor extends PlayerDescriptor {
 
 	public static int convert(Player player) {
 		Position start = player.getStartStep();
-		Position walk = player.getWalkStep();
 		Position run = player.getRunStep();
 		if (run == null)
 			return -1;
-		int deltaX = walk.getX() - start.getX();
-		int deltaY = walk.getY() - start.getY();
-		deltaX += run.getX() - walk.getX();
-		deltaY += run.getY() - walk.getY();
-		Position thirdStep;
-		if ((deltaY != 2 && deltaY != -2) && (deltaX != 2 && deltaX != -2)) {
-			thirdStep = player.getMovement().peek();
-			deltaX += thirdStep.getX() - run.getX();
-			deltaY += thirdStep.getY() - run.getY();
-		}
-		return convert(deltaX, deltaY);
+		return convert(run.getX() - start.getX(), run.getY() - start.getY());
 	}
 
 	public static int convert(int xChange, int yChange) {

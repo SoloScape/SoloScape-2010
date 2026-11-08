@@ -1,0 +1,6 @@
+package net.scapeemulator.game.msg.util;
+
+import net.scapeemulator.api.message.Message;
+
+public final class ClientPreferencesMessage implements Message {
+}

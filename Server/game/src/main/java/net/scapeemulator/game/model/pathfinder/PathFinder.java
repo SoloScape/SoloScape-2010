@@ -169,9 +169,25 @@ public class PathFinder {
 			if (!nearby) {
 				return;
 			}
-			// This happens when you click in unreachable places (such as just
-			// black void, rivers, closed buildings...)
-			// TODO: Should calculate an alternative path here
+			// Choose only tiles reached by the collision-aware search. Prefer the
+			// shortest route when several tiles are equally close to the click.
+			long bestDistance = Long.MAX_VALUE;
+			int bestSteps = Integer.MAX_VALUE;
+			for (int x = 0; x < 104; x++) {
+				for (int y = 0; y < 104; y++) {
+					if (parentDir[x][y] == 0)
+						continue;
+					long dx = (long) x - targetX;
+					long dy = (long) y - targetY;
+					long distance = dx * dx + dy * dy;
+					if (distance < bestDistance || (distance == bestDistance && distances[x][y] < bestSteps)) {
+						bestDistance = distance;
+						bestSteps = distances[x][y];
+						currentX = x;
+						currentY = y;
+					}
+				}
+			}
 		}
 
 		// Backtracking our path
@@ -179,6 +195,10 @@ public class PathFinder {
 		int size = distances[currentX][currentY]; // the number of steps in the
 													// path equals the distance
 													// to the target location
+		if (size == 0)
+			return; // Already standing on the closest reachable tile.
+		queueX = new int[size + 1];
+		queueY = new int[size + 1];
 		queueWrite = 0;
 		queueX[size] = currentX;
 		queueY[size] = currentY;

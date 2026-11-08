@@ -120,6 +120,7 @@ public class Messages {
 	private static void init(CodecRepository repository, LandscapeKeyTable table) {
 		/* decoders */
 		repository.bind(new PingMessageDecoder());
+		repository.bind(new LatencyMessageDecoder());
 		// repository.bind(new IdleLogoutMessageDecoder());
 		repository.bind(new WalkMessageDecoder(WalkMessage.HUD_WALK));
 		repository.bind(new WalkMessageDecoder(WalkMessage.MINIMAP_WALK));
@@ -128,7 +129,8 @@ public class Messages {
 		repository.bind(new CommandMessageDecoder());
 		repository.bind(new DisplayMessageDecoder());
 		// repository.bind(new RemoveItemMessageDecoder());
-		// repository.bind(new RegionChangedMessageDecoder());
+		repository.bind(new AreaChangeMessageDecoder());
+		repository.bind(new ClientPreferencesMessageDecoder());
 		repository.bind(new ClickMessageDecoder());
 		repository.bind(new MouseMovementMessageDecoder());
 		repository.bind(new FocusMessageDecoder());
@@ -202,6 +204,7 @@ public class Messages {
 		disp.bind(ChatMessage.class, new ChatMessageHandler());
 		disp.bind(CommandMessage.class, new CommandMessageHandler(commands));
 		disp.bind(DisplayMessage.class, new DisplayMessageHandler());
+		disp.bind(ClientPreferencesMessage.class, new ClientPreferencesMessageHandler());
 		disp.bind(AreaChangeMessage.class, new AreaChangeMessageHandler());
 		disp.bind(ClickMessage.class, new ClickMessageHandler());
 		disp.bind(MouseMovementMessage.class, new MouseMovementMessageHandler());

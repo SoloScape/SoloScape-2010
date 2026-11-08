@@ -186,11 +186,7 @@ public abstract class Mob extends Entity implements Comparable<Mob> {
 	}
 
 	public void setStartPosition(Position startPosition) {
-		if (this.startPosition == null) {
-			this.startPosition = new Position(0, 0, 0);
-		} else {
-			this.startPosition = startPosition;
-		}
+		this.startPosition = startPosition;
 	}
 
 	public void reset() {

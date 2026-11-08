@@ -11,7 +11,6 @@ public final class Movement {
 	private final Deque<Position> points = new ArrayDeque<>();
 	private boolean runningQueue;
 	private boolean minimapFlagReset = false;
-	private boolean peeked;
 
 	public Movement(Mob mob) {
 		this.mob = mob;
@@ -65,52 +64,27 @@ public final class Movement {
 			position = walk;
 
 			boolean canRun = !(mob instanceof Player) || ((Player) mob).hasRunEnergy();
-			if (((runningQueue || mob.isRunning()) && canRun) || peeked) {
+			if ((runningQueue || mob.isRunning()) && canRun) {
 				run = points.poll();
-				if (mob instanceof Player) {
-					int deltaX = walk.getX() - mob.getPosition().getX();
-					int deltaY = walk.getY() - mob.getPosition().getY();
-					if (run != null && !peeked) {
-						deltaX += run.getX() - walk.getX();
-						deltaY += run.getY() - walk.getY();
-						if ((deltaY != 2 && deltaY != -2) && (deltaX != 2 && deltaX != -2)) {
-							Position thirdStep = points.peek();
-							if (thirdStep != null) {
-								deltaX += thirdStep.getX() - run.getX();
-								deltaY += thirdStep.getY() - run.getY();
-							}
-						}
-						if ((deltaY != 2 && deltaY != -2) && (deltaX != 2 && deltaX != -2)) {
-							points.addFirst(run);
-							run = null;
-						}
+				if (mob instanceof Player && run != null) {
+					int deltaX = run.getX() - mob.getPosition().getX();
+					int deltaY = run.getY() - mob.getPosition().getY();
+					// The client can encode only the outer ring of two-tile offsets.
+					// Walk tight corners instead of borrowing a third, unconsumed tile.
+					if (Math.abs(deltaX) != 2 && Math.abs(deltaY) != 2) {
+						points.addFirst(run);
+						run = null;
 					}
 				}
 				if (run != null)
 					position = run;
-				if (peeked) {
-					mob.setStartPosition(walk);
-				}
 			}
-		}
-		if (peeked) {
-			walk = run;
-			run = null;
-			peeked = false;
 		}
 		if (!mob.getPosition().equals(position))
 			mob.setPosition(position);
 		mob.setSteps(walk, run);
 		if (mob instanceof Player)
 			((Player) mob).updateRunEnergy(run != null);
-	}
-
-	public Position peek() {
-		Position next = points.peek();
-		if (next == null)
-			return null;
-		peeked = true;
-		return next;
 	}
 
 	public boolean isRunningQueue() {

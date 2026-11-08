@@ -23,7 +23,7 @@ public final class WalkMessageHandler extends MessageHandler<Player, WalkMessage
 			player.stopAction();
 			player.getDisplay().closeInterfaces();
 			player.getMovement().reset();
-			PathFinder.findPath(player, message.getX(), message.getY(), 1, 1, false, message.isRunning());
+			PathFinder.findPath(player, message.getX(), message.getY(), 1, 1, true, message.isRunning());
 		}
 	}
 }

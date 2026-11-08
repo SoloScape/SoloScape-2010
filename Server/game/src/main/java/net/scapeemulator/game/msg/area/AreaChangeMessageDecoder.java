@@ -10,7 +10,7 @@ public final class AreaChangeMessageDecoder extends MessageDecoder<AreaChangeMes
 	private static final AreaChangeMessage REGION_CHANGED_MESSAGE = new AreaChangeMessage();
 
 	public AreaChangeMessageDecoder() {
-		super(110);
+		super(17);
 	}
 
 	@Override
