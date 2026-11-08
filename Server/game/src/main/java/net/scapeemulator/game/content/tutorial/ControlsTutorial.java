@@ -28,23 +28,35 @@ public final class ControlsTutorial extends Interface {
 
     @Override
     public int getDisplaySlot(DisplayMode mode) {
-        // Centre over the game scene, like the original tutorial screenshot.
-        // This passive sprite does not intercept the camera arrow keys.
-        return mode.getCenterRoot();
+        // 746:8 is a clipped 512x334 scene widget, shorter than the 410px
+        // artwork. In resizable mode use 746:6, the fullscreen overlay pane.
+        // Fixed mode has a 512x334 game view, so use its centre pane.
+        return mode == DisplayMode.RESIZED || mode == DisplayMode.FULLSCREEN
+                ? mode.getPaneRoot() : mode.getCenterRoot();
     }
 
     public static void openIfPending(Player player) {
         if (!player.isControlsTutorialPending() || player.isCharacterCreationRequired()
                 || player.getDisplay().getInterface(INSTANCE.getId()) != null)
             return;
-        player.getDisplay().open(INSTANCE, true);
+        if (player.isControlsTutorialOpenDeferred())
+            return;
+        if (player.getDisplay().open(INSTANCE, true)) {
+            player.recordControlsTutorialShown(System.currentTimeMillis());
+            logger.info("Opened centred Controls tutorial interface {} for {}.",
+                    INSTANCE.getId(), player.getUsername());
+        } else {
+            logger.warn("Could not open Controls tutorial interface for {}.", player.getUsername());
+        }
     }
 
     public static void completeOnCameraRotation(Player player) {
         if (!player.isControlsTutorialPending()
-                || player.getDisplay().getInterface(INSTANCE.getId()) == null)
+                || player.getDisplay().getInterface(INSTANCE.getId()) == null
+                || !player.canDismissControlsTutorial(System.currentTimeMillis()))
             return;
-        // Only save once an actual camera-angle change is observed, not on open.
+        // Only save after the popup has been displayed long enough to be
+        // readable. This filters automatic camera updates during HUD reset.
         player.setControlsTutorialPending(false);
         try {
             if (player.getSession() != null)

@@ -43,7 +43,7 @@ public final class ControlsInterfaceInstallerTest {
         }
         assertEquals(DisplayMode.FIXED.getCenterRoot(),
                 ControlsTutorial.INSTANCE.getDisplaySlot(DisplayMode.FIXED));
-        assertEquals(DisplayMode.RESIZED.getCenterRoot(),
+        assertEquals(DisplayMode.RESIZED.getPaneRoot(),
                 ControlsTutorial.INSTANCE.getDisplaySlot(DisplayMode.RESIZED));
         assertNotEquals(371, ControlsTutorial.INSTANCE.getId());
     }

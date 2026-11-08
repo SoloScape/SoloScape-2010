@@ -230,7 +230,9 @@ public final class CharacterCreation extends Interface {
 		player.refreshAppearance();
 		// Replacing a fullscreen root sends the new root; no invalid close(-1) packet.
 		player.getDisplay().close(this, false);
-		ControlsTutorial.openIfPending(player);
+		// PlayerUpdater opens the prompt after the newly restored HUD has been
+		// delivered on separate ticks, rather than in this same network flush.
+		player.deferControlsTutorial(2);
 	}
 
 	private static Map<Integer, Integer> values(int enumId) {

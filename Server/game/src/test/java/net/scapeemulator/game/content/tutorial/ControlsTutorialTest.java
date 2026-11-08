@@ -51,12 +51,36 @@ public final class ControlsTutorialTest {
         assertTrue(player.isControlsTutorialPending());
 
         camera.handle(player, new CameraMessage(101, 200));
+        // A camera change just after opening may be automatic HUD reset.
+        assertNotNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
+        player.recordControlsTutorialShown(System.currentTimeMillis() - 2000);
+        camera.handle(player, new CameraMessage(102, 200)); // Fresh baseline.
+        assertNotNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
+        camera.handle(player, new CameraMessage(103, 200)); // Subsequent rotation.
         assertNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
         assertFalse(player.isControlsTutorialPending());
 
         camera.handle(player, new CameraMessage(102, 200));
         ControlsTutorial.openIfPending(player);
         assertNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
+    }
+
+    @Test
+    public void transitioningFromCharacterSetupDefersTheControlsWindowUntilHudIsReady() {
+        Player player = new Player();
+        player.getDisplay().initialize(DisplayMode.RESIZED);
+        player.setCharacterCreationRequired(false);
+        player.setControlsTutorialPending(true);
+        player.deferControlsTutorial(2);
+        ControlsTutorial.openIfPending(player);
+        assertNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
+        ControlsTutorial.openIfPending(player);
+        assertNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
+        ControlsTutorial.openIfPending(player);
+        assertNotNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
+        assertEquals(DisplayMode.RESIZED.getPaneRoot(),
+                ControlsTutorial.INSTANCE.getDisplaySlot(DisplayMode.RESIZED));
+        assertTrue(player.isControlsTutorialPending());
     }
 
     @Test

@@ -65,6 +65,8 @@ public final class Player extends Mob {
 	private boolean characterCreationRequired;
 	private int characterCreationCategory;
 	private boolean controlsTutorialPending;
+	private int controlsTutorialOpeningDelay;
+	private long controlsTutorialShownAt;
 	// Only first-time tutorial characters have gated tabs. Old profiles are unrestricted.
 	private boolean tutorialTabsRestricted;
 	private int tutorialTabMask;
@@ -478,6 +480,33 @@ public final class Player extends Mob {
 
 	public void setControlsTutorialPending(boolean pending) {
 		controlsTutorialPending = pending;
+	}
+
+	/**
+	 * Fullscreen character setup changes the entire HUD root. Reopening an
+	 * overlay in the same network flush can be lost when the 592 client
+	 * rebuilds the HUD. Let at least two player-update cycles pass first.
+	 */
+	public void deferControlsTutorial(int ticks) {
+		controlsTutorialOpeningDelay = Math.max(0, ticks);
+	}
+
+	public boolean isControlsTutorialOpenDeferred() {
+		if (controlsTutorialOpeningDelay == 0)
+			return false;
+		controlsTutorialOpeningDelay--;
+		return true;
+	}
+
+	public void recordControlsTutorialShown(long nowMillis) {
+		controlsTutorialShownAt = nowMillis;
+		// The first camera packet after the full-screen HUD transition is a
+		// baseline, not evidence that the player pressed an arrow key.
+		cameraPositionKnown = false;
+	}
+
+	public boolean canDismissControlsTutorial(long nowMillis) {
+		return controlsTutorialShownAt > 0 && nowMillis - controlsTutorialShownAt >= 1200;
 	}
 
 	/**
