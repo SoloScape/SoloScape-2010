@@ -17,7 +17,7 @@ public final class DummyPlayerSerializer extends PlayerSerializer {
 		player.getStatus().setVar(406, 22);// Tutorial
 		player.getStatus().defaults();
 		// TODO Defaults NOT in load, but initial account creation!
-		player.setPosition(new Position(3094, 3107)); // Tutorial Island starting house.
+		player.setPosition(new Position(3680, 4960)); // Unstable Foundations tutorial cellar.
 		Inventory samples = player.getInventories().get(Inventory.GENERAL_STORE_FREEBIES);
 		if (samples != null) {
 			samples.add(new Item(4151, 50));

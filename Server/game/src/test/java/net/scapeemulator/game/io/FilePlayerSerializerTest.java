@@ -37,7 +37,7 @@ public class FilePlayerSerializerTest {
 		Path directory = temporary.newFolder().toPath();
 		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
 		Player original = load(serializer, "Callum", "test-password");
-		assertEquals(new Position(3094, 3107, 0), original.getPosition());
+		assertEquals(new Position(3680, 4960, 0), original.getPosition());
 		original.setPosition(new Position(3217, 3428, 2));
 		original.setEnergy(37.625);
 		original.getSkillSet().loadSkill(0, 72, 75, 1210421.5);

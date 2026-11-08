@@ -6,6 +6,8 @@ Target: the original nine-instructor Tutorial Island, adapted to this server's b
 
 The audit found starting-position, state, interface, and save-system scaffolding, but no working instructor sequence. None of the gameplay items below has been verified in game.
 
+Current spawn: new accounts start in the Unstable Foundations cellar at `(3680, 4960, 0)`. The island checklist below is retained as a separate implementation plan; moving the spawn does not implement either tutorial.
+
 ## Prerequisites
 
 - [ ] Initialize genuinely new accounts at character creation; replace the current varp 406 value 22 and completion default used by new-character setup

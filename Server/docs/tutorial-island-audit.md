@@ -2,6 +2,8 @@
 
 Audited on 8 November 2026 against branch `Feature/Tutorial-Island`. This is a source-code and historical-reference audit, not an in-game acceptance test. It changes the implementation checklist only.
 
+Subsequent spawn change: new accounts now start at `(3680, 4960, 0)` in the Unstable Foundations tutorial cellar. The local build-592 landscape includes Sir Vant's bag, the cupboard door, ladders, rocks, and roots in this region. This moves the spawn only; the quest, dialogue, NPCs, and cutscenes remain unimplemented. The table below records the earlier island audit.
+
 ## Historical target
 
 RuneScape replaced Tutorial Island with Unstable Foundations on 17 September 2009. Consequently, a literal live-2010 tutorial would involve Sir Vant beneath Lumbridge, rather than the nine island instructors. This project deliberately retains the requested island route on its build-592 client. Use the pre-removal island flow, checking visual assets and protocol details against the local cache. [Historical quest reference](https://runescape.wiki/w/Unstable_Foundations), [island development history](https://runescape.wiki/w/Tutorial_Island).
