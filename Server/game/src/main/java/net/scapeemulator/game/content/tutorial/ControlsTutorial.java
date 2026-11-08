@@ -5,6 +5,7 @@ import net.scapeemulator.game.model.hud.DisplayMode;
 import net.scapeemulator.game.model.hud.interf.Interface;
 import net.scapeemulator.game.model.hud.interf.type.InterfacePersistence;
 import net.scapeemulator.game.model.player.Player;
+import net.scapeemulator.game.msg.interf.InterfaceOpenMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,17 +29,27 @@ public final class ControlsTutorial extends Interface {
 
     @Override
     public int getDisplaySlot(DisplayMode mode) {
-        // 746:8 is a clipped 512x334 scene widget, shorter than the 410px
-        // artwork. In resizable mode use 746:6, the fullscreen overlay pane.
-        // Fixed mode has a 512x334 game view, so use its centre pane.
-        return mode == DisplayMode.RESIZED || mode == DisplayMode.FULLSCREEN
-                ? mode.getPaneRoot() : mode.getCenterRoot();
+        // 746:6 is drawn beneath the game scene. Open on the central
+        // foreground pane (746:8 / 548:6) with artwork sized to fit 512x334.
+        return mode.getCenterRoot();
     }
 
     public static void openIfPending(Player player) {
-        if (!player.isControlsTutorialPending() || player.isCharacterCreationRequired()
-                || player.getDisplay().getInterface(INSTANCE.getId()) != null)
+        if (!player.isControlsTutorialPending() || player.isCharacterCreationRequired())
             return;
+        if (player.getDisplay().getInterface(INSTANCE.getId()) != null) {
+            // A client may silently skip a new interface while its JS5 group
+            // is downloading. A bounded re-open helps recover without asking
+            // the player to remake their character or reconnect.
+            if (player.shouldResendControlsTutorial(System.currentTimeMillis())) {
+                DisplayMode mode = player.getDisplay().getMode();
+                int pointer = (mode.getRoot().getId() << 16) | INSTANCE.getDisplaySlot(mode);
+                player.send(new InterfaceOpenMessage(pointer, INSTANCE));
+                logger.info("Reasserted Controls interface {} for {} on pointer {}.",
+                        INSTANCE.getId(), player.getUsername(), pointer);
+            }
+            return;
+        }
         if (player.isControlsTutorialOpenDeferred())
             return;
         if (player.getDisplay().open(INSTANCE, true)) {

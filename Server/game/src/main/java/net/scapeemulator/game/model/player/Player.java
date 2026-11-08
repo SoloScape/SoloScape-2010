@@ -67,6 +67,8 @@ public final class Player extends Mob {
 	private boolean controlsTutorialPending;
 	private int controlsTutorialOpeningDelay;
 	private long controlsTutorialShownAt;
+	private long controlsTutorialLastSentAt;
+	private int controlsTutorialResends;
 	// Only first-time tutorial characters have gated tabs. Old profiles are unrestricted.
 	private boolean tutorialTabsRestricted;
 	private int tutorialTabMask;
@@ -500,6 +502,8 @@ public final class Player extends Mob {
 
 	public void recordControlsTutorialShown(long nowMillis) {
 		controlsTutorialShownAt = nowMillis;
+		controlsTutorialLastSentAt = nowMillis;
+		controlsTutorialResends = 0;
 		// The first camera packet after the full-screen HUD transition is a
 		// baseline, not evidence that the player pressed an arrow key.
 		cameraPositionKnown = false;
@@ -507,6 +511,20 @@ public final class Player extends Mob {
 
 	public boolean canDismissControlsTutorial(long nowMillis) {
 		return controlsTutorialShownAt > 0 && nowMillis - controlsTutorialShownAt >= 1200;
+	}
+
+	/**
+	 * Opening a newly-added JS5 interface can race the client's first fetch
+	 * of its cache group. Reassert the original open packet up to three times,
+	 * without changing the camera baseline or the persisted pending flag.
+	 */
+	public boolean shouldResendControlsTutorial(long nowMillis) {
+		if (controlsTutorialShownAt <= 0 || controlsTutorialResends >= 3
+				|| nowMillis - controlsTutorialLastSentAt < 5000)
+			return false;
+		controlsTutorialResends++;
+		controlsTutorialLastSentAt = nowMillis;
+		return true;
 	}
 
 	/**

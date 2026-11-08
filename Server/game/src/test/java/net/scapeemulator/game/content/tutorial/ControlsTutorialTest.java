@@ -78,9 +78,22 @@ public final class ControlsTutorialTest {
         assertNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
         ControlsTutorial.openIfPending(player);
         assertNotNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
-        assertEquals(DisplayMode.RESIZED.getPaneRoot(),
+        assertEquals(DisplayMode.RESIZED.getCenterRoot(),
                 ControlsTutorial.INSTANCE.getDisplaySlot(DisplayMode.RESIZED));
         assertTrue(player.isControlsTutorialPending());
+    }
+
+    @Test
+    public void newlyCachedPopupCanBeResentButNeverFloodsTheClient() {
+        Player player = new Player();
+        player.setControlsTutorialPending(true);
+        player.recordControlsTutorialShown(1000);
+        assertFalse(player.shouldResendControlsTutorial(5999));
+        assertTrue(player.shouldResendControlsTutorial(6000));
+        assertFalse(player.shouldResendControlsTutorial(6001));
+        assertTrue(player.shouldResendControlsTutorial(11000));
+        assertTrue(player.shouldResendControlsTutorial(16000));
+        assertFalse(player.shouldResendControlsTutorial(22000));
     }
 
     @Test

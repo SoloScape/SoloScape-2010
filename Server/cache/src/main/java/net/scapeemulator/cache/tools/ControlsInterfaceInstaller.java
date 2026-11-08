@@ -33,8 +33,12 @@ public final class ControlsInterfaceInstaller {
     private static final Logger logger = Logger.getLogger(ControlsInterfaceInstaller.class.getName());
     public static final int INTERFACE_ID = 905;
     public static final int SPRITE_ID = 2489;
+    // Artwork is drawn at its original resolution and scaled down to fit
+    // inside build-592's 512x334 central game widget without being clipped.
     public static final int WIDTH = 392;
     public static final int HEIGHT = 410;
+    public static final int DISPLAY_WIDTH = 314;
+    public static final int DISPLAY_HEIGHT = 328;
     private static final Color ORANGE = new Color(237, 150, 54);
     private static final Color RED = new Color(236, 69, 51);
 
@@ -43,11 +47,11 @@ public final class ControlsInterfaceInstaller {
 
     /** The game server calls this before constructing the JS5 UpdateService. */
     public static void install(Cache cache) throws IOException {
-        Sprite sprite = new Sprite(WIDTH, HEIGHT);
+        Sprite sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
         sprite.setFrame(0, renderPanel());
         byte[] spriteBytes = bytes(sprite.encode());
-        ByteBuffer child = createWidget(cache);
-        byte[] widgetBytes = bytes(child);
+        byte[] containerBytes = bytes(createRootWidget(cache));
+        byte[] widgetBytes = bytes(createWidget(cache));
 
         // Write only when the artwork changes. Rewriting every boot changes
         // reference-table CRCs and forces unnecessary client cache downloads.
@@ -56,9 +60,14 @@ public final class ControlsInterfaceInstaller {
                     new Container(Container.COMPRESSION_GZIP, ByteBuffer.wrap(spriteBytes), 0));
             logger.info("Installed Controls sprite " + SPRITE_ID + ".");
         }
-        if (!matchesMember(cache, 3, INTERFACE_ID, 0, widgetBytes)) {
-            cache.write(3, INTERFACE_ID, 0, ByteBuffer.wrap(widgetBytes));
-            logger.info("Installed centred Controls interface " + INTERFACE_ID + ".");
+        // Client build 592 expects a normal container root for overlays.
+        // A standalone sprite root was not rendering in-game even though
+        // the client could fetch it from JS5.
+        if (!matchesMember(cache, 3, INTERFACE_ID, 0, containerBytes)
+                || !matchesMember(cache, 3, INTERFACE_ID, 1, widgetBytes)) {
+            cache.write(3, INTERFACE_ID, 0, ByteBuffer.wrap(containerBytes));
+            cache.write(3, INTERFACE_ID, 1, ByteBuffer.wrap(widgetBytes));
+            logger.info("Installed Controls root container and sprite in interface " + INTERFACE_ID + ".");
         }
     }
 
@@ -89,26 +98,49 @@ public final class ControlsInterfaceInstaller {
     }
 
     /**
-     * Copy a stock noninteractive IF3 sprite component, preserving its
-     * supported script/listener structure. The only alterations are sprite
-     * reference, parent, size, and centred alignment.
+     * The successfully rendering character-creation screen has an IF3 type-0
+     * root. Copy that verified container format for the new Controls group.
+     */
+    public static ByteBuffer createRootWidget(Cache cache) throws IOException {
+        byte[] data = bytes(cache.read(3, 900, 1));
+        if ((data[0] & 255) != 255 || data[1] != 0)
+            throw new IOException("Unexpected build-592 root widget format");
+        ByteBuffer root = ByteBuffer.wrap(data);
+        root.putShort(4, (short) 0);
+        root.putShort(6, (short) 0);
+        root.putShort(8, (short) 512);
+        root.putShort(10, (short) 334);
+        root.put(12, (byte) 0);
+        root.put(13, (byte) 0);
+        root.put(14, (byte) 1);
+        root.put(15, (byte) 1);
+        root.putShort(16, (short) 0xFFFF); // top-level container
+        root.put(18, (byte) 0);
+        root.position(0);
+        return root;
+    }
+
+    /**
+     * Use the visible IF3 sprite widget format from character creation (900:2),
+     * not the original 159:46 standalone sprite. This is child 1 of the root.
      */
     public static ByteBuffer createWidget(Cache cache) throws IOException {
-        byte[] data = bytes(cache.read(3, 159, 46));
+        byte[] data = bytes(cache.read(3, 900, 2));
         if (data.length != 74 || (data[0] & 255) != 255 || data[1] != 5)
             throw new IOException("Unexpected build-592 sprite widget format");
         ByteBuffer widget = ByteBuffer.wrap(data);
-        widget.putShort(4, (short) 0); // x offset
-        widget.putShort(6, (short) 0); // y offset
-        widget.putShort(8, (short) WIDTH);
-        widget.putShort(10, (short) HEIGHT);
-        widget.put(12, (byte) 0); // absolute width
-        widget.put(13, (byte) 0); // absolute height
-        widget.put(14, (byte) 1); // centre horizontally
-        widget.put(15, (byte) 1); // centre vertically
-        widget.putShort(16, (short) 0xFFFF); // top-level child
-        widget.put(18, (byte) 0); // visible
+        widget.putShort(4, (short) 0);
+        widget.putShort(6, (short) 0);
+        widget.putShort(8, (short) DISPLAY_WIDTH);
+        widget.putShort(10, (short) DISPLAY_HEIGHT);
+        widget.put(12, (byte) 0);
+        widget.put(13, (byte) 0);
+        widget.put(14, (byte) 1);
+        widget.put(15, (byte) 1);
+        widget.putShort(16, (short) 0); // parent is component 0 in this group
+        widget.put(18, (byte) 0);
         widget.putInt(19, SPRITE_ID);
+        widget.put(25, (byte) 0); // draw one image rather than tile a border
         widget.position(0);
         return widget;
     }
@@ -167,7 +199,14 @@ public final class ControlsInterfaceInstaller {
 
         // The JS5 sprite codec uses an indexed palette (max 255 colours).
         // Quantise the painted graphic to a themed palette, deterministically.
-        return quantise(raw);
+        BufferedImage fitted = new BufferedImage(DISPLAY_WIDTH, DISPLAY_HEIGHT,
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D scaling = fitted.createGraphics();
+        scaling.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        scaling.drawImage(raw, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, null);
+        scaling.dispose();
+        return quantise(fitted);
     }
 
     private static void key(Graphics2D g, int x, int y, String symbol) {
@@ -258,10 +297,11 @@ public final class ControlsInterfaceInstaller {
         for (int i = 0; i < 24; i++)
             palette.add(rgb(90 + i * 7, 93 + i * 7, 91 + i * 7));
         // 204 candidate shades (+ transparent pixel = < 256 palette entries).
-        BufferedImage result = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage result = new BufferedImage(source.getWidth(), source.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
         Map<Integer, Integer> cache = new HashMap<>();
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int x = 0; x < WIDTH; x++) {
+        for (int y = 0; y < source.getHeight(); y++) {
+            for (int x = 0; x < source.getWidth(); x++) {
                 int pixel = source.getRGB(x, y);
                 int alpha = (pixel >>> 24) & 255;
                 if (alpha == 0) {

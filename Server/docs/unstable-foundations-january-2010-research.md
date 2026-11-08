@@ -21,7 +21,7 @@ Important date boundary: RuneScape changed its account-creation process and Unst
 ## Implementation notes in this branch
 
 * Native character setup is interface 900. The instructional overlay is custom interface 905 and must **not** reuse interface 371.
-* Resizable HUD interface 746's child 8 is a **512x334 scene widget**. A **392x410** controls image is too tall for that child. Prefer 746's full-size overlay pane (child 6) when opening 905.
+* Resizable HUD interface 746's child 8 is a **512x334 scene widget**. Child 6 is lower in the HUD draw order, so an overlay there can sit behind the game world. Interface 905 now uses the foreground centre slot (746:8), a standard IF3 type-0 root container, and a fitted **314x328** sprite child (built from 392x410 artwork). The fixed-mode centre slot uses the same widget group.
 * After confirming setup, deliver the normal HUD root before opening the controls popup on a later player-update tick.
 * Camera packet 51 contains camera angles, not a keypress. Establish a fresh post-open angle baseline and require enough visible time before counting a later change as a tutorial completion.
 * The saved tutorial controls pending flag persists across reconnects; ensure failure to display the popup does not inadvertently mark it complete.
