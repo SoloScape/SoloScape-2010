@@ -92,6 +92,17 @@ echo   World: %WORLD_ID%
 echo ============================================================
 echo.
 
+rem Free the ports used by this world and the login/web services before either starts.
+rem The optional port 80 is only cleared when held by an old ScapeEmulator JVM.
+echo Cleaning up ports for world %WORLD_ID%...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0stop-listeners.ps1" -WorldId "%WORLD_ID%"
+if errorlevel 1 (
+    echo [ERROR] Required server ports could not be cleared. Nothing was started.
+    pause
+    exit /b 1
+)
+echo.
+
 echo Starting Crosstalk/login server...
 start "ScapeEmulator 592 - Login" /D "%~dp0login" cmd.exe /k call "%JAVA_EXE%" -Xms128m -Xmx512m -cp "%~dp0game\target\classes;%LOGIN_CP%" net.scapeemulator.xtalk.CrosstalkServer
 
