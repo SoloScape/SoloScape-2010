@@ -6,7 +6,7 @@ The cellar spawn and first-login character-creation code are implemented. Thirte
 
 ## New character and cellar setup
 
-- [x] Spawn new accounts at `(3680, 4960, 0)` in the tutorial cellar
+- [x] Spawn new accounts at `(3678, 4937, 0)` in the tutorial cellar, facing north
 - [x] Confirm the cellar landscape and a clear spawn tile in the local cache
 - [x] Update the existing fresh-character/save regression and pass all 10 serializer tests
 - [x] Open build-592 character creation for new accounts; block movement and closing before confirmation

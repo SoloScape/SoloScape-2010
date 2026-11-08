@@ -1,6 +1,5 @@
 package net.scapeemulator.game.io;
 
-import net.scapeemulator.game.model.entity.Position;
 import net.scapeemulator.game.model.inventory.Inventory;
 import net.scapeemulator.game.model.inventory.Item;
 import net.scapeemulator.game.model.player.Player;
@@ -18,7 +17,7 @@ public final class DummyPlayerSerializer extends PlayerSerializer {
 		player.getStatus().setVar(406, 22);// Tutorial
 		player.getStatus().defaults();
 		// TODO Defaults NOT in load, but initial account creation!
-		player.setPosition(new Position(3680, 4960)); // Unstable Foundations tutorial cellar.
+		NewCharacterSpawn.initialize(player); // Unstable Foundations cellar, facing north.
 		Inventory samples = player.getInventories().get(Inventory.GENERAL_STORE_FREEBIES);
 		if (samples != null) {
 			samples.add(new Item(4151, 50));

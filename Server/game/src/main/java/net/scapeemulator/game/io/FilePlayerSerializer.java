@@ -171,6 +171,7 @@ public final class FilePlayerSerializer extends PlayerSerializer {
 		if (!"true".equals(confirmed) && !"false".equals(confirmed))
 			throw new IOException("Invalid appearance confirmation state");
 		player.setCharacterCreationRequired(!Boolean.parseBoolean(confirmed));
+		NewCharacterSpawn.restorePendingFacing(player);
 		SkillSet skills = player.getSkillSet();
 		if (integer(data, "skills.count", 0, 100) != skills.size())
 			throw new IOException("Saved skill count mismatch");

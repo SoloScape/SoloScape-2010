@@ -4,7 +4,7 @@ Historical island audit. The active onboarding plan is now the [Unstable Foundat
 
 Audited on 8 November 2026 against branch `Feature/Tutorial-Island`. This is a source-code and historical-reference audit, not an in-game acceptance test. It changes the implementation checklist only.
 
-Subsequent spawn change: new accounts now start at `(3680, 4960, 0)` in the Unstable Foundations tutorial cellar. The local build-592 landscape includes Sir Vant's bag, the cupboard door, ladders, rocks, and roots in this region. This moves the spawn only; the quest, dialogue, NPCs, and cutscenes remain unimplemented. The table below records the earlier island audit.
+Subsequent spawn change: new accounts now start at `(3678, 4937, 0)` facing north in the Unstable Foundations tutorial cellar. The local build-592 landscape includes Sir Vant's bag, the cupboard door, ladders, rocks, and roots in this region. This moves the spawn only; the quest, dialogue, NPCs, and cutscenes remain unimplemented. The table below records the earlier island audit.
 
 ## Historical target
 

@@ -37,7 +37,8 @@ public class FilePlayerSerializerTest {
 		Path directory = temporary.newFolder().toPath();
 		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
 		Player original = load(serializer, "Callum", "test-password");
-		assertEquals(new Position(3680, 4960, 0), original.getPosition());
+		assertEquals(new Position(3678, 4937, 0), original.getPosition());
+		assertEquals(new Position(3678, 4938, 0), original.getOrientationPosition());
 		original.setPosition(new Position(3217, 3428, 2));
 		original.setEnergy(37.625);
 		original.getSkillSet().loadSkill(0, 72, 75, 1210421.5);
@@ -52,6 +53,7 @@ public class FilePlayerSerializerTest {
 		serializer.save(original);
 		Player restored = load(new FilePlayerSerializer(directory), "callum", "test-password");
 		assertEquals(original.getPosition(), restored.getPosition());
+		assertNull(restored.getOrientationPosition()); // Don't reset a returning player's facing.
 		assertEquals(37.625, restored.getPreciseEnergy(), 0);
 		for (int i = 0; i < original.getSkillSet().size(); i++) {
 			assertEquals(original.getSkillSet().getCurrentLevel(i), restored.getSkillSet().getCurrentLevel(i));
@@ -79,11 +81,15 @@ public class FilePlayerSerializerTest {
 		serializer.save(player);
 		Player resumed = load(new FilePlayerSerializer(directory), "newlook", "password");
 		assertTrue(resumed.isCharacterCreationRequired());
+		assertEquals(NewCharacterSpawn.POSITION, resumed.getPosition());
+		assertEquals(new Position(3678, 4938, 0), resumed.getOrientationPosition());
 		assertEquals(Gender.FEMALE, resumed.getAppearance().getGender());
 		resumed.setCharacterCreationRequired(false);
 		serializer.save(resumed);
 		Player confirmed = load(new FilePlayerSerializer(directory), "newlook", "password");
 		assertFalse(confirmed.isCharacterCreationRequired());
+		assertEquals(NewCharacterSpawn.POSITION, confirmed.getPosition());
+		assertNull(confirmed.getOrientationPosition()); // Only new/pending characters are reoriented.
 		assertEquals(697, confirmed.getAppearance().getStyle(0));
 		assertEquals(7, confirmed.getAppearance().getColor(4));
 	}
