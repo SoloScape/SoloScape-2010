@@ -95,6 +95,34 @@ public class FilePlayerSerializerTest {
 	}
 
 	@Test
+	public void tutorialTabUnlocksPersistWithoutAffectingOlderAccounts() throws Exception {
+		Path dir = temporary.newFolder().toPath();
+		FilePlayerSerializer serializer = new FilePlayerSerializer(dir);
+		Player newPlayer = load(serializer, "tabprogress", "password");
+		assertTrue(newPlayer.isTutorialTabsRestricted());
+		assertEquals(1 << net.scapeemulator.game.model.hud.interf.Tab.SETTINGS,
+				newPlayer.getTutorialTabMask());
+		newPlayer.setCharacterCreationRequired(false);
+		newPlayer.setControlsTutorialPending(true);
+		newPlayer.setTutorialTabState(true,
+				newPlayer.getTutorialTabMask() | (1 << net.scapeemulator.game.model.hud.interf.Tab.INVENTORY));
+		serializer.save(newPlayer);
+
+		Player loaded = load(new FilePlayerSerializer(dir), "tabprogress", "password");
+		assertTrue(loaded.isTutorialTabsRestricted());
+		assertTrue(loaded.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.SETTINGS));
+		assertTrue(loaded.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.INVENTORY));
+		assertFalse(loaded.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.ATTACK));
+		assertFalse(loaded.isCharacterCreationRequired());
+
+		loaded.setTutorialTabState(false, (1 << net.scapeemulator.game.model.hud.interf.Tab.TAB_COUNT) - 1);
+		serializer.save(loaded);
+		Player completed = load(new FilePlayerSerializer(dir), "tabprogress", "password");
+		assertFalse(completed.isTutorialTabsRestricted());
+		assertTrue(completed.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.ATTACK));
+	}
+
+	@Test
 	public void cameraControlsLessonIsSavedUntilThePlayerRotatesTheView() throws Exception {
 		Path directory = temporary.newFolder().toPath();
 		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
@@ -125,9 +153,13 @@ public class FilePlayerSerializerTest {
 		Properties data = new Properties();
 		try (InputStream input = Files.newInputStream(profile)) { data.load(input); }
 		data.remove("appearance.confirmed");
+		data.remove("tutorial.tabs.restricted");
+		data.remove("tutorial.tabs.mask");
 		try (OutputStream output = Files.newOutputStream(profile)) { data.store(output, "legacy profile"); }
 		Player legacy = load(serializer, "oldlook", "password");
 		assertFalse(legacy.isCharacterCreationRequired());
+		assertFalse(legacy.isTutorialTabsRestricted());
+		assertTrue(legacy.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.INVENTORY));
 		assertEquals(Appearance.DEFAULT_APPEARANCE.getStyle(0), legacy.getAppearance().getStyle(0));
 	}
 

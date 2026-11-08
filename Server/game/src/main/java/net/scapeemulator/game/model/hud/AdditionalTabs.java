@@ -19,6 +19,13 @@ public final class AdditionalTabs {
 	private AdditionalTabs() {
 	}
 
+	public static Tab forSlot(int slot) {
+		for (Tab tab : TABS)
+			if (tab.getSlot() == slot)
+				return tab;
+		return null;
+	}
+
 	public static void open(Player player) {
 		for (Tab tab : TABS) {
 			player.getDisplay().open(tab, false);

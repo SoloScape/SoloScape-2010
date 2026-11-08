@@ -9,6 +9,7 @@ import net.scapeemulator.game.model.constants.Interfaces;
 import net.scapeemulator.game.model.constants.Skill;
 import net.scapeemulator.game.model.entity.Position;
 import net.scapeemulator.game.model.hud.HeadsUpDisplay;
+import net.scapeemulator.game.model.hud.interf.Tab;
 import net.scapeemulator.game.model.hud.combat.PrayerTab;
 import net.scapeemulator.game.model.mob.Mob;
 import net.scapeemulator.game.model.mob.Animation;
@@ -64,6 +65,9 @@ public final class Player extends Mob {
 	private boolean characterCreationRequired;
 	private int characterCreationCategory;
 	private boolean controlsTutorialPending;
+	// Only first-time tutorial characters have gated tabs. Old profiles are unrestricted.
+	private boolean tutorialTabsRestricted;
+	private int tutorialTabMask;
 	private boolean cameraPositionKnown;
 	private int lastCameraYaw, lastCameraPitch;
 	private int[] appearanceTickets = new int[World.MAX_PLAYERS];
@@ -444,6 +448,28 @@ public final class Player extends Mob {
 
 	public void setCharacterCreationRequired(boolean required) {
 		characterCreationRequired = required;
+	}
+
+	public boolean isTutorialTabsRestricted() {
+		return tutorialTabsRestricted;
+	}
+
+	public int getTutorialTabMask() {
+		return tutorialTabMask;
+	}
+
+	public void setTutorialTabState(boolean restricted, int mask) {
+		if ((mask & ~((1 << Tab.TAB_COUNT) - 1)) != 0)
+			throw new IllegalArgumentException("Invalid tutorial tab mask");
+		this.tutorialTabsRestricted = restricted;
+		this.tutorialTabMask = mask;
+	}
+
+	public boolean isTutorialTabUnlocked(int slot) {
+		return slot >= 0 && slot < Tab.TAB_COUNT
+				&& (!tutorialTabsRestricted
+					|| slot == Tab.SETTINGS
+					|| (tutorialTabMask & (1 << slot)) != 0);
 	}
 
 	public boolean isControlsTutorialPending() {

@@ -184,9 +184,9 @@ public class Messages {
 
 		repository.bind(new ServerMessageEncoder());
 		repository.bind(new LogoutMessageEncoder());
-		// repository.bind(new InterfaceVisibleMessageEncoder());
 		repository.bind(new InterfaceTextMessageEncoder());
 		repository.bind(new InterfaceSpriteMessageEncoder());
+		repository.bind(new InterfaceVisibleMessageEncoder());
 		repository.bind(new PlayerOnInterfaceMessageEncoder());
 
 		repository.bind(new EnergyMessageEncoder());

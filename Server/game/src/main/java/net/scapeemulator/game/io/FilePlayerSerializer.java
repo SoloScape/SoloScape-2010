@@ -3,6 +3,7 @@ package net.scapeemulator.game.io;
 import net.scapeemulator.game.model.entity.Position;
 import net.scapeemulator.game.model.inventory.Inventory;
 import net.scapeemulator.game.model.inventory.Item;
+import net.scapeemulator.game.model.hud.interf.Tab;
 import net.scapeemulator.game.model.mob.SkillSet;
 import net.scapeemulator.game.model.player.*;
 import net.scapeemulator.game.net.login.LoginResponse;
@@ -127,6 +128,8 @@ public final class FilePlayerSerializer extends PlayerSerializer {
 		Appearance appearance = player.getAppearance();
 		put(data, "appearance.confirmed", !player.isCharacterCreationRequired());
 		put(data, "tutorial.controls.pending", player.isControlsTutorialPending());
+		put(data, "tutorial.tabs.restricted", player.isTutorialTabsRestricted());
+		put(data, "tutorial.tabs.mask", player.getTutorialTabMask());
 		put(data, "appearance.gender", appearance.getGender().name());
 		for (int i = 0; i < 7; i++) put(data, "appearance.style." + i, appearance.getStyle(i));
 		for (int i = 0; i < 5; i++) put(data, "appearance.color." + i, appearance.getColor(i));
@@ -176,6 +179,15 @@ public final class FilePlayerSerializer extends PlayerSerializer {
 		if (!"true".equals(controls) && !"false".equals(controls))
 			throw new IOException("Invalid controls tutorial state");
 		player.setControlsTutorialPending(!player.isCharacterCreationRequired() && Boolean.parseBoolean(controls));
+		// Profiles created before tab gating stay unrestricted if already through creation.
+		String restricted = data.getProperty("tutorial.tabs.restricted",
+				String.valueOf(player.isCharacterCreationRequired() || player.isControlsTutorialPending()));
+		if (!"true".equals(restricted) && !"false".equals(restricted))
+			throw new IOException("Invalid tutorial tab state");
+		int mask = data.containsKey("tutorial.tabs.mask")
+				? integer(data, "tutorial.tabs.mask", 0, (1 << Tab.TAB_COUNT) - 1)
+				: (1 << Tab.SETTINGS);
+		player.setTutorialTabState(Boolean.parseBoolean(restricted), mask);
 		NewCharacterSpawn.restorePendingFacing(player);
 		SkillSet skills = player.getSkillSet();
 		if (integer(data, "skills.count", 0, 100) != skills.size())

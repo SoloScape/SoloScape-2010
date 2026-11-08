@@ -2,6 +2,7 @@ package net.scapeemulator.game.io;
 
 import net.scapeemulator.game.model.inventory.Inventory;
 import net.scapeemulator.game.model.inventory.Item;
+import net.scapeemulator.game.model.hud.interf.Tab;
 import net.scapeemulator.game.model.player.Player;
 import net.scapeemulator.game.net.login.LoginResponse;
 
@@ -13,6 +14,7 @@ public final class DummyPlayerSerializer extends PlayerSerializer {
 		player.setUsername(username);
 		player.setPassword(password);
 		player.setCharacterCreationRequired(true);
+		player.setTutorialTabState(true, 1 << Tab.SETTINGS);
 		player.setRights(2);
 		player.getStatus().setVar(406, 22);// Tutorial
 		player.getStatus().defaults();

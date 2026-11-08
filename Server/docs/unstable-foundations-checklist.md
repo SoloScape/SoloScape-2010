@@ -27,6 +27,8 @@ The cellar spawn and first-login character-creation code are implemented. Thirte
 - [ ] Show the dragon attack and squire death cutscene
 - [ ] Restore player camera and controls after the scene
 - [x] Show camera/movement controls after character confirmation; dismiss after camera rotation
+- [x] Restrict fresh characters to Settings; persist per-tab unlocks and hide tab icons in fixed/resizable HUD
+- [ ] Wire future quest stages to reveal each tab with TutorialTabs.unlockTab(player, Tab.X)
 - [ ] Replace instructional keycap symbols with exact build-592 graphical keyboard/mouse icons if a suitable component is added
 - [ ] Add objective text, flashing controls, and target hints for each action
 - [ ] Match dialogue, voice lines, music, and effects to the available 2010 assets

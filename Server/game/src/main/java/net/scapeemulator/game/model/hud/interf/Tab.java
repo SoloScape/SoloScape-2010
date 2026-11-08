@@ -30,6 +30,10 @@ public class Tab extends Interface {
 		this.slot = slot;
 	}
 
+	public int getSlot() {
+		return slot;
+	}
+
 	@Override
 	public int getDisplaySlot(DisplayMode mode) {
 		return mode.getTabRoot() + slot;
