@@ -100,6 +100,18 @@ public class ClickMovementTest {
 	}
 
 	@Test
+	public void varrockWestBankRegionIsLoadedAndReachableInBothDirections() {
+		assertEquals(49, WorldMap.getRegion(49, 53).getX());
+		Player player = playerAt(3210, 3424);
+		click(player, 3185, 3436, false, false);
+		finishRoute(player);
+		assertEquals(new Position(3185, 3436), player.getPosition());
+		click(player, 3210, 3424, true, true);
+		finishRoute(player);
+		assertEquals(new Position(3210, 3424), player.getPosition());
+	}
+
+	@Test
 	public void fountainClickApproachesBasinWithoutEnteringIt() {
 		Player player = playerAt(3211, 3424);
 		click(player, 3211, 3427, false, false);

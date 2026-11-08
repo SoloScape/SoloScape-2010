@@ -26,20 +26,15 @@ public final class WorldMap {
 	private static final MapArea EMPTY_REGION = MapArea.emptyRegion();
 
 	public static void init(Cache cache, LandscapeKeyTable keyTable) throws IOException {
+		table.clear();
+		regions.clear();
 		ReferenceTable rt = ReferenceTable.decode(Container.decode(cache.getStore().read(255, 5)).getData());
 
 		long time = System.currentTimeMillis();
 		Map<Integer, String> hashes = new HashMap<>();
+		// Resolve every cache region, including neighbours outside the starting area.
 		for (int x = 0; x < 256; x++) {
-			if (x < 50)
-				x = 50;
-			if (x > 70)
-				x = 256;
 			for (int y = 0; y < 256; y++) {
-				if (y < 50)
-					y = 50;
-				if (y > 70)
-					y = 256;
 				String mapFile = "m" + x + "_" + y;
 				String landscapeFile = "l" + x + "_" + y;
 				String npcFile = "n" + x + "_" + y;
