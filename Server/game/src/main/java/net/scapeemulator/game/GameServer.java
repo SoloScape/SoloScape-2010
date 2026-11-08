@@ -12,6 +12,7 @@ import net.scapeemulator.cache.FileStore;
 import net.scapeemulator.game.cache.GameConstants;
 import net.scapeemulator.game.cache.ItemDefinition;
 import net.scapeemulator.game.cache.SceneryDefinition;
+import net.scapeemulator.game.cache.StructDefinition;
 import net.scapeemulator.game.cache.VarBitDefinition;
 import net.scapeemulator.game.command.CommandDispatcher;
 import net.scapeemulator.game.conf.WorldConfiguration;
@@ -87,6 +88,7 @@ public final class GameServer implements Service {
 		EquipmentDefinition.init();
 		SceneryDefinition.init(cache);
 		GameConstants.init(cache);
+		StructDefinition.init(cache);
 		WorldMap.init(cache, landscapeKeyTable);
 		logger.info("Type definitions loaded... Registering plugins...");
 

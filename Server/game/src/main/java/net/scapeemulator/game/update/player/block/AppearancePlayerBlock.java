@@ -140,14 +140,17 @@ public final class AppearancePlayerBlock extends PlayerBlock {
 			return appearance.getStyle(6);
 		case 11:
 			Gender gender = appearance.getGender();
+			if (gender == Gender.FEMALE) {
+				// The secondary female torso kit occupies this slot without body armour.
+				return equipment.get(Equipment.BODY) == null ? appearance.getStyle(1) : -1;
+			}
 			item = equipment.get(Equipment.HEAD);
 			if (item != null) {
 				fullHelm = EquipmentDefinition.forId(item.getId()).isFullHelm();
 				fullMask = EquipmentDefinition.forId(item.getId()).isFullMask();
 			}
-			if (gender == Gender.MALE && !fullMask && !fullHelm) {
+			if (!fullMask && !fullHelm)
 				return appearance.getStyle(1);
-			}
 			return -1;
 		default:
 			return -1;

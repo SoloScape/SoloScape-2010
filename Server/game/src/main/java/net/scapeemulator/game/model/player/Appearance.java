@@ -3,7 +3,7 @@ package net.scapeemulator.game.model.player;
 public final class Appearance {
 
 	public static final Appearance DEFAULT_APPEARANCE = new Appearance(Gender.MALE,
-		new int[] { 0, 10, 18, 26, 33, 36, 42 },
+		new int[] { 8, 14, 18, 26, 34, 38, 42 },
 		new int[] { 2, 5, 8, 11, 14 });
 
 	private final Gender gender;

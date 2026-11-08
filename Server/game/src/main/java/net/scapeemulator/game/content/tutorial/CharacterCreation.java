@@ -2,6 +2,7 @@ package net.scapeemulator.game.content.tutorial;
 
 import net.scapeemulator.cache.def.GameConstantContainer;
 import net.scapeemulator.game.cache.GameConstants;
+import net.scapeemulator.game.cache.StructDefinition;
 import net.scapeemulator.game.model.hud.DisplayMode;
 import net.scapeemulator.game.model.hud.interf.Interface;
 import net.scapeemulator.game.model.hud.interf.action.ChildInterfaceClickAction;
@@ -25,7 +26,7 @@ public final class CharacterCreation extends Interface {
 		{2338, 703, 690, 711, 749, 1586, 1136},
 		{2341, -1, 1591, 693, 751, 1607, 1137}
 	};
-	private static final int[] COLOUR_ENUMS = {2345, 2349, 2351, 753, 748};
+	private static final int[] COLOUR_ENUMS = {2345, 2349, 2351, 1589, 748};
 	private static final int[] CATEGORY_STYLES = {-1, 0, 1, 2, 3, 4, 5, 6};
 	private static final int[] CATEGORY_COLOURS = {4, 0, -1, 1, -1, -1, 2, 3};
 
@@ -55,11 +56,10 @@ public final class CharacterCreation extends Interface {
 		if (action instanceof ChildInterfaceClickAction) {
 			click(player, (ChildInterfaceClickAction) action);
 		} else if (action.getType() == InterfaceAction.ActionType.OPEN_INTER) {
-			// Static buttons and dynamically generated model/colour choices need server options.
-			for (int child : new int[] {15, 20, 27, 33, 37, 41, 45, 49, 53, 57, 61, 81})
-				enable(player, child, -1, -1);
-			enable(player, 66, 0, 255);
+			// Static buttons already send plain clicks; only generated grids need masks.
+			enable(player, 66, 0, 130);
 			enable(player, 73, 0, 255);
+			synchronizeGender(player);
 			synchronizePreview(player);
 		}
 	}
@@ -80,6 +80,7 @@ public final class CharacterCreation extends Interface {
 		if (child == 15 || child == 20) {
 			player.setCharacterCreationCategory(0);
 			normalize(player, child == 15 ? Gender.MALE : Gender.FEMALE, false);
+			synchronizeGender(player);
 			synchronizePreview(player);
 		} else if (child == 27) {
 			// A preset supplies a complete, valid look from this cache's creation options.
@@ -89,8 +90,8 @@ public final class CharacterCreation extends Interface {
 			int category = (child - 33) / 4;
 			if (category == 2 && player.getAppearance().getGender() == Gender.FEMALE)
 				return;
+			// The client owns its active tab; sending varc 1020 resets it to Skin.
 			player.setCharacterCreationCategory(category);
-			player.getStatus().setVarC(1020, category);
 		} else if ((child == 66 || child == 73) && action.getOption() == 1) {
 			select(player, child, action.getSlot());
 		} else if (child == 81) {
@@ -102,19 +103,22 @@ public final class CharacterCreation extends Interface {
 		int category = player.getCharacterCreationCategory();
 		Appearance current = player.getAppearance();
 		int[] styles = styles(current), colours = colours(current);
+		int varc, selected;
 		if (child == 66) {
-			// Script 2740 builds three children per entry; the clickable child is index * 3 + 2.
+			// Script 2740: three children per option, clickable overlay at index * 3 + 2.
 			if (slot < 2 || slot % 3 != 2)
 				return;
 			int style = CATEGORY_STYLES[category];
 			if (style == -1)
 				return;
-			Integer value = option(STYLE_ENUMS[current.getGender().ordinal()][style], slot / 3);
+			Integer value = styleOption(current.getGender(), style, slot / 3);
 			if (value == null)
 				return;
 			styles[style] = value;
+			varc = 1008 + style;
+			selected = value;
 		} else {
-			// Script 2744 builds a colour swatch and clickable overlay for each entry.
+			// Script 2744: two children per option, clickable overlay at index * 2 + 1.
 			if (slot < 1 || slot % 2 != 1)
 				return;
 			int colour = CATEGORY_COLOURS[category];
@@ -123,11 +127,17 @@ public final class CharacterCreation extends Interface {
 			Integer value = option(COLOUR_ENUMS[colour], slot / 2);
 			if (value == null)
 				return;
-			// The footwear enum stores RGB swatches; the appearance uses their indices.
-			colours[colour] = colour == 3 ? slot / 2 : value;
+			// Footwear enum 1589 contains IDs offset by 3680, not grid indices.
+			selected = colour == 3 ? value - 3680 : value;
+			if (selected < 0 || selected > 255)
+				return;
+			colours[colour] = selected;
+			varc = 1015 + colour;
 		}
 		player.setAppearance(new Appearance(current.getGender(), styles, colours));
-		synchronizePreview(player);
+		// Do not resend the unchanged gender, active tab, or unrelated colours:
+		// their client-side triggers otherwise reset the selected category.
+		player.getStatus().setVarC(varc, selected);
 	}
 
 	private void normalize(Player player, Gender gender, boolean preset) {
@@ -136,22 +146,56 @@ public final class CharacterCreation extends Interface {
 		for (int i = 0; i < styles.length; i++) {
 			int enumId = STYLE_ENUMS[gender.ordinal()][i];
 			if (enumId == -1) {
-				styles[i] = 0; // Female models have no beard.
+				// Female models use this as a secondary torso slot, not a beard.
+				styles[i] = 1000;
 				continue;
 			}
-			Map<Integer, Integer> values = values(enumId);
-			if (preset || !values.containsValue(styles[i]))
-				styles[i] = values.get(preset ? ThreadLocalRandom.current().nextInt(values.size()) : 0);
+			Map<Integer, Integer> options = values(enumId);
+			boolean valid = i == 0 ? validHair(options, styles[i]) : options.containsValue(styles[i]);
+			if (preset || !valid) {
+				int index = preset && !options.isEmpty() ? ThreadLocalRandom.current().nextInt(options.size()) : 0;
+				Integer selected = styleOption(gender, i, index);
+				if (selected != null)
+					styles[i] = selected;
+				else if (i == 0)
+					styles[i] = gender == Gender.MALE ? 8 : 223;
+			}
 		}
 		for (int i = 0; i < colours.length; i++) {
-			Map<Integer, Integer> values = values(COLOUR_ENUMS[i]);
-			boolean valid = i == 3 ? values.containsKey(colours[i]) : values.containsValue(colours[i]);
+			Map<Integer, Integer> options = values(COLOUR_ENUMS[i]);
+			boolean valid = options.containsValue(i == 3 ? 3680 + colours[i] : colours[i]);
 			if (preset || !valid) {
-				int index = preset ? ThreadLocalRandom.current().nextInt(values.size()) : 0;
-				colours[i] = i == 3 ? index : values.get(index);
+				int index = preset && !options.isEmpty() ? ThreadLocalRandom.current().nextInt(options.size()) : 0;
+				Integer value = options.get(index);
+				if (value != null) {
+					int colour = i == 3 ? value - 3680 : value;
+					if (colour >= 0 && colour <= 255)
+						colours[i] = colour;
+				}
 			}
 		}
 		player.setAppearance(new Appearance(gender, styles, colours));
+	}
+
+	private static boolean validHair(Map<Integer, Integer> options, int hair) {
+		for (int structId : options.values()) {
+			Integer kit = StructDefinition.getIntParam(structId, 788);
+			if (kit != null && kit == hair)
+				return true;
+		}
+		return false;
+	}
+
+	private static Integer styleOption(Gender gender, int style, int index) {
+		Integer value = option(STYLE_ENUMS[gender.ordinal()][style], index);
+		if (value == null)
+			return null;
+		// Hair enums 2338/2341 map to structs; parameter 788 is the kit ID.
+		return style == 0 ? StructDefinition.getIntParam(value, 788) : value;
+	}
+
+	private void synchronizeGender(Player player) {
+		player.getStatus().setVarBit(6501, player.getAppearance().getGender().ordinal());
 	}
 
 	private void synchronizePreview(Player player) {
@@ -160,9 +204,6 @@ public final class CharacterCreation extends Interface {
 			player.getStatus().setVarC(1008 + i, appearance.getStyle(i));
 		for (int i = 0; i < 5; i++)
 			player.getStatus().setVarC(1015 + i, appearance.getColor(i));
-		// Script 2733 reads varbit 6501 for gender and varc 1020 for the category.
-		player.getStatus().setVarBit(6501, appearance.getGender().ordinal());
-		player.getStatus().setVarC(1020, player.getCharacterCreationCategory());
 	}
 
 	private void confirm(Player player) {
