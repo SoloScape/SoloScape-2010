@@ -1,5 +1,6 @@
 package net.scapeemulator.game.content.tutorial;
 
+import net.scapeemulator.cache.tools.ControlsInterfaceInstaller;
 import net.scapeemulator.game.model.hud.DisplayMode;
 import net.scapeemulator.game.model.hud.interf.Interface;
 import net.scapeemulator.game.model.hud.interf.type.InterfacePersistence;

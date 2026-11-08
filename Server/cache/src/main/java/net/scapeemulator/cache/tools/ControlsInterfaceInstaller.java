@@ -1,4 +1,4 @@
-package net.scapeemulator.game.content.tutorial;
+package net.scapeemulator.cache.tools;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -20,8 +20,7 @@ import java.util.Map;
 import net.scapeemulator.cache.Cache;
 import net.scapeemulator.cache.Container;
 import net.scapeemulator.cache.def.Sprite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 
 /**
  * Installs a native IF3 controls overlay in unused build-592 cache slots.
@@ -31,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * assets intact: interface group 905 and sprite 2489 were both unallocated.
  */
 public final class ControlsInterfaceInstaller {
-    private static final Logger logger = LoggerFactory.getLogger(ControlsInterfaceInstaller.class);
+    private static final Logger logger = Logger.getLogger(ControlsInterfaceInstaller.class.getName());
     public static final int INTERFACE_ID = 905;
     public static final int SPRITE_ID = 2489;
     public static final int WIDTH = 392;
@@ -55,11 +54,11 @@ public final class ControlsInterfaceInstaller {
         if (!matches(cache, 8, SPRITE_ID, spriteBytes)) {
             cache.write(8, SPRITE_ID,
                     new Container(Container.COMPRESSION_GZIP, ByteBuffer.wrap(spriteBytes), 0));
-            logger.info("Installed Controls sprite {}.", SPRITE_ID);
+            logger.info("Installed Controls sprite " + SPRITE_ID + ".");
         }
         if (!matchesMember(cache, 3, INTERFACE_ID, 0, widgetBytes)) {
             cache.write(3, INTERFACE_ID, 0, ByteBuffer.wrap(widgetBytes));
-            logger.info("Installed centred Controls interface {}.", INTERFACE_ID);
+            logger.info("Installed centred Controls interface " + INTERFACE_ID + ".");
         }
     }
 

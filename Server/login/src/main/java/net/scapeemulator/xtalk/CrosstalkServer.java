@@ -9,6 +9,7 @@ import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import net.scapeemulator.api.Service;
 import net.scapeemulator.cache.Cache;
 import net.scapeemulator.cache.FileStore;
+import net.scapeemulator.cache.tools.ControlsInterfaceInstaller;
 import net.scapeemulator.js5.UpdateService;
 import net.scapeemulator.util.NetworkConstants;
 import net.scapeemulator.xtalk.net.CrosstalkChannelInitializer;
@@ -55,6 +56,9 @@ public final class CrosstalkServer implements Service {
 
 	public CrosstalkServer() throws IOException {
 		cache = new Cache(FileStore.open("../data/cache"));
+		// Both login and game must install custom JS5 assets before taking
+		// checksum snapshots. run.bat starts login first.
+		ControlsInterfaceInstaller.install(cache);
 		js5 = new UpdateService(VERSION, cache);
 		serverService = new GameServerService(VERSION);
 		logger.info("Starting ScapeEmulator login server...");

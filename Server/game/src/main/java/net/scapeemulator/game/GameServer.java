@@ -10,7 +10,7 @@ import net.scapeemulator.api.message.handler.MessageDispatcher;
 import net.scapeemulator.cache.Cache;
 import net.scapeemulator.cache.FileStore;
 import net.scapeemulator.game.cache.GameConstants;
-import net.scapeemulator.game.content.tutorial.ControlsInterfaceInstaller;
+import net.scapeemulator.cache.tools.ControlsInterfaceInstaller;
 import net.scapeemulator.game.cache.ItemDefinition;
 import net.scapeemulator.game.cache.SceneryDefinition;
 import net.scapeemulator.game.cache.StructDefinition;

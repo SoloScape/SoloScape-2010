@@ -1,6 +1,7 @@
 package net.scapeemulator.game.content.tutorial;
 
 import net.scapeemulator.cache.Cache;
+import net.scapeemulator.cache.tools.ControlsInterfaceInstaller;
 import net.scapeemulator.cache.FileStore;
 import net.scapeemulator.cache.def.Sprite;
 import net.scapeemulator.game.model.hud.DisplayMode;

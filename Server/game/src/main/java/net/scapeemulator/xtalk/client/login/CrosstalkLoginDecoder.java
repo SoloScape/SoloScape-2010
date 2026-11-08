@@ -32,18 +32,52 @@ public class CrosstalkLoginDecoder extends ByteToMessageDecoder {
 				out.add(new ServerSessionKeyResult(res, serverSessionKey));
 				break;
 			case LOGIN:
-				if (buf.readableBytes() < 1)
+				ServerLoginResult result = parseLoginResponse(buf);
+				if (result == null)
 					return;
-				res = buf.readUnsignedByte();
-				Map<Integer, Country> countries = new HashMap<>();
-				int cc = buf.readUnsignedByte();
-				for (int i = 0; i < cc; i++) {
-					countries.put(i, new Country(buf.readUnsignedByte(), ByteBufUtils.readString(buf)));
-				}
-				out.add(new ServerLoginResult(res, countries));
+				out.add(result);
 				ctx.pipeline().remove(this);
 				break;
 			}
 		}
+	}
+
+	/**
+	 * Failure packets contain only the status byte. Success packets contain
+	 * a country count and a variable-length list of terminated country names.
+	 * Inspect the complete success packet before consuming its first byte:
+	 * TCP is allowed to deliver a packet in arbitrary fragments.
+	 */
+	static ServerLoginResult parseLoginResponse(ByteBuf buf) {
+		int start = buf.readerIndex();
+		int end = buf.writerIndex();
+		if (start >= end)
+			return null;
+		int status = buf.getUnsignedByte(start);
+		if (status != ServerLoginResult.SUCCESS) {
+			buf.readUnsignedByte();
+			return new ServerLoginResult(status, new HashMap<Integer, Country>());
+		}
+		if (end - start < 2)
+			return null;
+
+		int countryCount = buf.getUnsignedByte(start + 1);
+		int cursor = start + 2;
+		for (int i = 0; i < countryCount; i++) {
+			if (cursor >= end)
+				return null; // Country flag not yet received.
+			cursor++;
+			while (cursor < end && buf.getUnsignedByte(cursor) != 0)
+				cursor++;
+			if (cursor >= end)
+				return null; // Country name is incomplete.
+			cursor++;
+		}
+
+		buf.skipBytes(2);
+		Map<Integer, Country> countries = new HashMap<>();
+		for (int i = 0; i < countryCount; i++)
+			countries.put(i, new Country(buf.readUnsignedByte(), ByteBufUtils.readString(buf)));
+		return new ServerLoginResult(status, countries);
 	}
 }
