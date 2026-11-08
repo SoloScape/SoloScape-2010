@@ -2,14 +2,18 @@
 
 Restore the build-592 Unstable Foundations tutorial from new-character creation through the exit into Lumbridge and the advisor/objectives handoff.
 
-The cellar spawn is implemented and the existing character-save suite passed (8 tests). The quest itself is still to be implemented. Checked items below describe code/cache validation, not a completed in-game playthrough. Earlier Tutorial Island documents are retained as historical planning notes.
+The cellar spawn and first-login character-creation code are implemented. Thirteen focused Java tests pass, covering persistence, the appearance packet, and creation-screen state and selections. The client-side creation screen still requires a live in-game acceptance check, and the Unstable Foundations quest itself is not yet implemented. Checked items describe code/cache validation, not a completed playthrough. Earlier Tutorial Island documents are retained as historical planning notes.
 
 ## New character and cellar setup
 
 - [x] Spawn new accounts at `(3680, 4960, 0)` in the tutorial cellar
 - [x] Confirm the cellar landscape and a clear spawn tile in the local cache
-- [x] Update the existing fresh-character/save regression and pass all 8 serializer tests
-- [ ] Open character creation, validate selections, and save the accepted appearance
+- [x] Update the existing fresh-character/save regression and pass all 10 serializer tests
+- [x] Open build-592 character creation for new accounts; block movement and closing before confirmation
+- [x] Handle gender, model categories, style choices, colours and presets with client-cache enums
+- [x] Persist the accepted appearance and required/confirmed flag; resume unfinished creation and preserve older accounts
+- [x] Validate appearance kit encoding and run all 13 focused Java tests
+- [ ] Verify the creation screen's real client clicks, Confirm, restart/reconnect and HUD transition in-game
 - [ ] Initialize a dedicated Unstable Foundations quest state; remove dependence on the old island completion state
 - [ ] Give ordinary new accounts the intended rights and starter state
 - [ ] Preserve returning characters' saved position, progress, equipment, and appearance

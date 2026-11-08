@@ -9,6 +9,9 @@ public class InterfaceActionHandler<E extends InterfaceAction> extends MessageHa
 
 	@Override
 	public void handle(Player player, InterfaceAction action) {
+		if (player.isCharacterCreationRequired()
+				&& action.getType() == InterfaceAction.ActionType.CLOSE_INTER)
+			return;
 		int interfaceId = action.getInterfaceId();
 		if (interfaceId != -1) {
 			Interface inter = player.getDisplay().getInterface(interfaceId);

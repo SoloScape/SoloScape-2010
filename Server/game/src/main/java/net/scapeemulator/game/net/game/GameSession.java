@@ -6,6 +6,7 @@ import net.scapeemulator.api.Session;
 import net.scapeemulator.api.message.Message;
 import net.scapeemulator.api.message.handler.MessageDispatcher;
 import net.scapeemulator.game.GameServer;
+import net.scapeemulator.game.content.tutorial.CharacterCreation;
 import net.scapeemulator.game.model.entity.Position;
 import net.scapeemulator.game.model.hud.DisplayMode;
 import net.scapeemulator.game.model.player.Player;
@@ -42,6 +43,7 @@ public final class GameSession extends Session<GameServer> {
 		/* refresh skills, energy, etc. */
 		player.getSkillSet().refresh();
 		player.setEnergy(player.getPreciseEnergy());
+		CharacterCreation.openIfRequired(player);
 	}
 
 	@Override

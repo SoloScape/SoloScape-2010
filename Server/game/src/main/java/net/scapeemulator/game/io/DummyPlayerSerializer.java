@@ -13,6 +13,7 @@ public final class DummyPlayerSerializer extends PlayerSerializer {
 		Player player = new Player();
 		player.setUsername(username);
 		player.setPassword(password);
+		player.setCharacterCreationRequired(true);
 		player.setRights(2);
 		player.getStatus().setVar(406, 22);// Tutorial
 		player.getStatus().defaults();

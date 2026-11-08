@@ -61,6 +61,8 @@ public final class Player extends Mob {
 	private final List<Npc> localNpcs = new ArrayList<>();
 
 	private Appearance appearance = Appearance.DEFAULT_APPEARANCE;
+	private boolean characterCreationRequired;
+	private int characterCreationCategory;
 	private int[] appearanceTickets = new int[World.MAX_PLAYERS];
 	private int[] tickets = new int[World.MAX_PLAYERS];
 	private int appearanceTicket = nextAppearanceTicket();
@@ -424,6 +426,22 @@ public final class Player extends Mob {
 	public void setAppearance(Appearance appearance) {
 		this.appearance = appearance;
 		refreshAppearance();
+	}
+
+	public boolean isCharacterCreationRequired() {
+		return characterCreationRequired;
+	}
+
+	public void setCharacterCreationRequired(boolean required) {
+		characterCreationRequired = required;
+	}
+
+	public int getCharacterCreationCategory() {
+		return characterCreationCategory;
+	}
+
+	public void setCharacterCreationCategory(int category) {
+		characterCreationCategory = category;
 	}
 
 	public boolean isChatUpdated() {

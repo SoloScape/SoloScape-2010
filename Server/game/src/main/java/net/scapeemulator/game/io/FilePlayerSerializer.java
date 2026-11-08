@@ -125,6 +125,7 @@ public final class FilePlayerSerializer extends PlayerSerializer {
 		put(data, "position.height", position.getHeight());
 		put(data, "energy", player.getPreciseEnergy());
 		Appearance appearance = player.getAppearance();
+		put(data, "appearance.confirmed", !player.isCharacterCreationRequired());
 		put(data, "appearance.gender", appearance.getGender().name());
 		for (int i = 0; i < 7; i++) put(data, "appearance.style." + i, appearance.getStyle(i));
 		for (int i = 0; i < 5; i++) put(data, "appearance.color." + i, appearance.getColor(i));
@@ -165,6 +166,11 @@ public final class FilePlayerSerializer extends PlayerSerializer {
 		for (int i = 0; i < styles.length; i++) styles[i] = integer(data, "appearance.style." + i, 0, 65535);
 		for (int i = 0; i < colors.length; i++) colors[i] = integer(data, "appearance.color." + i, 0, 255);
 		player.setAppearance(new Appearance(Gender.valueOf(required(data, "appearance.gender")), styles, colors));
+		// Profiles written before character creation existed already have an accepted appearance.
+		String confirmed = data.getProperty("appearance.confirmed", "true");
+		if (!"true".equals(confirmed) && !"false".equals(confirmed))
+			throw new IOException("Invalid appearance confirmation state");
+		player.setCharacterCreationRequired(!Boolean.parseBoolean(confirmed));
 		SkillSet skills = player.getSkillSet();
 		if (integer(data, "skills.count", 0, 100) != skills.size())
 			throw new IOException("Saved skill count mismatch");

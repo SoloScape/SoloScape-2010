@@ -1,0 +1,206 @@
+package net.scapeemulator.game.content.tutorial;
+
+import net.scapeemulator.cache.def.GameConstantContainer;
+import net.scapeemulator.game.cache.GameConstants;
+import net.scapeemulator.game.model.hud.DisplayMode;
+import net.scapeemulator.game.model.hud.interf.Interface;
+import net.scapeemulator.game.model.hud.interf.action.ChildInterfaceClickAction;
+import net.scapeemulator.game.model.hud.interf.action.InterfaceAction;
+import net.scapeemulator.game.model.hud.interf.type.InterfacePersistence;
+import net.scapeemulator.game.model.player.Appearance;
+import net.scapeemulator.game.model.player.Gender;
+import net.scapeemulator.game.model.player.Player;
+import net.scapeemulator.game.msg.interf.child.ChildInterfaceSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+
+/** Build-592 character setup, using the same enums and dynamic slots as scripts 2731-2751. */
+public final class CharacterCreation extends Interface {
+	public static final CharacterCreation INSTANCE = new CharacterCreation();
+	private static final Logger logger = LoggerFactory.getLogger(CharacterCreation.class);
+	private static final int[][] STYLE_ENUMS = {
+		{2338, 703, 690, 711, 749, 1586, 1136},
+		{2341, -1, 1591, 693, 751, 1607, 1137}
+	};
+	private static final int[] COLOUR_ENUMS = {2345, 2349, 2351, 753, 748};
+	private static final int[] CATEGORY_STYLES = {-1, 0, 1, 2, 3, 4, 5, 6};
+	private static final int[] CATEGORY_COLOURS = {4, 0, -1, 1, -1, -1, 2, 3};
+
+	private CharacterCreation() {
+		super(900, InterfacePersistence.PERSISTENT);
+	}
+
+	@Override
+	public int getDisplaySlot(DisplayMode mode) {
+		return DisplayMode.FULLSCREEN_INTERFACE;
+	}
+
+	public static void openIfRequired(Player player) {
+		if (!player.isCharacterCreationRequired())
+			return;
+		player.stopAction();
+		player.getMovement().reset();
+		player.setCharacterCreationCategory(0);
+		INSTANCE.normalize(player, player.getAppearance().getGender(), false);
+		player.getDisplay().openRootInterface(INSTANCE, true);
+	}
+
+	@Override
+	public void dispatch(Player player, InterfaceAction action) {
+		if (!player.isCharacterCreationRequired())
+			return;
+		if (action instanceof ChildInterfaceClickAction) {
+			click(player, (ChildInterfaceClickAction) action);
+		} else if (action.getType() == InterfaceAction.ActionType.OPEN_INTER) {
+			// Static buttons and dynamically generated model/colour choices need server options.
+			for (int child : new int[] {15, 20, 27, 33, 37, 41, 45, 49, 53, 57, 61, 81})
+				enable(player, child, -1, -1);
+			enable(player, 66, 0, 255);
+			enable(player, 73, 0, 255);
+			synchronizePreview(player);
+		}
+	}
+
+	private void enable(Player player, int child, int start, int end) {
+		ChildInterfaceSettings settings = new ChildInterfaceSettings(getId(), child);
+		settings.setAffectingSlots(start, end);
+		settings.enableOptions(1);
+		player.send(settings);
+	}
+
+	private void click(Player player, ChildInterfaceClickAction action) {
+		// Scripted buttons use a plain click (option 0); dynamic choices use option 1.
+		if ((action.getOption() != 0 && action.getOption() != 1)
+				|| action.getInterfaceId() != getId())
+			return;
+		int child = action.getChild();
+		if (child == 15 || child == 20) {
+			player.setCharacterCreationCategory(0);
+			normalize(player, child == 15 ? Gender.MALE : Gender.FEMALE, false);
+			synchronizePreview(player);
+		} else if (child == 27) {
+			// A preset supplies a complete, valid look from this cache's creation options.
+			normalize(player, player.getAppearance().getGender(), true);
+			synchronizePreview(player);
+		} else if (child >= 33 && child <= 61 && (child - 33) % 4 == 0) {
+			int category = (child - 33) / 4;
+			if (category == 2 && player.getAppearance().getGender() == Gender.FEMALE)
+				return;
+			player.setCharacterCreationCategory(category);
+			player.getStatus().setVarC(1020, category);
+		} else if ((child == 66 || child == 73) && action.getOption() == 1) {
+			select(player, child, action.getSlot());
+		} else if (child == 81) {
+			confirm(player);
+		}
+	}
+
+	private void select(Player player, int child, int slot) {
+		int category = player.getCharacterCreationCategory();
+		Appearance current = player.getAppearance();
+		int[] styles = styles(current), colours = colours(current);
+		if (child == 66) {
+			// Script 2740 builds three children per entry; the clickable child is index * 3 + 2.
+			if (slot < 2 || slot % 3 != 2)
+				return;
+			int style = CATEGORY_STYLES[category];
+			if (style == -1)
+				return;
+			Integer value = option(STYLE_ENUMS[current.getGender().ordinal()][style], slot / 3);
+			if (value == null)
+				return;
+			styles[style] = value;
+		} else {
+			// Script 2744 builds a colour swatch and clickable overlay for each entry.
+			if (slot < 1 || slot % 2 != 1)
+				return;
+			int colour = CATEGORY_COLOURS[category];
+			if (colour == -1)
+				return;
+			Integer value = option(COLOUR_ENUMS[colour], slot / 2);
+			if (value == null)
+				return;
+			// The footwear enum stores RGB swatches; the appearance uses their indices.
+			colours[colour] = colour == 3 ? slot / 2 : value;
+		}
+		player.setAppearance(new Appearance(current.getGender(), styles, colours));
+		synchronizePreview(player);
+	}
+
+	private void normalize(Player player, Gender gender, boolean preset) {
+		Appearance old = player.getAppearance();
+		int[] styles = styles(old), colours = colours(old);
+		for (int i = 0; i < styles.length; i++) {
+			int enumId = STYLE_ENUMS[gender.ordinal()][i];
+			if (enumId == -1) {
+				styles[i] = 0; // Female models have no beard.
+				continue;
+			}
+			Map<Integer, Integer> values = values(enumId);
+			if (preset || !values.containsValue(styles[i]))
+				styles[i] = values.get(preset ? ThreadLocalRandom.current().nextInt(values.size()) : 0);
+		}
+		for (int i = 0; i < colours.length; i++) {
+			Map<Integer, Integer> values = values(COLOUR_ENUMS[i]);
+			boolean valid = i == 3 ? values.containsKey(colours[i]) : values.containsValue(colours[i]);
+			if (preset || !valid) {
+				int index = preset ? ThreadLocalRandom.current().nextInt(values.size()) : 0;
+				colours[i] = i == 3 ? index : values.get(index);
+			}
+		}
+		player.setAppearance(new Appearance(gender, styles, colours));
+	}
+
+	private void synchronizePreview(Player player) {
+		Appearance appearance = player.getAppearance();
+		for (int i = 0; i < 7; i++)
+			player.getStatus().setVarC(1008 + i, appearance.getStyle(i));
+		for (int i = 0; i < 5; i++)
+			player.getStatus().setVarC(1015 + i, appearance.getColor(i));
+		// Script 2733 reads varbit 6501 for gender and varc 1020 for the category.
+		player.getStatus().setVarBit(6501, appearance.getGender().ordinal());
+		player.getStatus().setVarC(1020, player.getCharacterCreationCategory());
+	}
+
+	private void confirm(Player player) {
+		if (player.getSession() == null) {
+			player.sendMessage("Your appearance could not be saved. Please try again.");
+			return;
+		}
+		player.setCharacterCreationRequired(false);
+		try {
+			player.getSession().getService().getLoginService().savePlayer(player);
+		} catch (RuntimeException ex) {
+			player.setCharacterCreationRequired(true);
+			logger.error("Could not save character creation for {}.", player.getUsername(), ex);
+			player.sendMessage("Your appearance could not be saved. Please try confirming again.");
+			return;
+		}
+		// Replacing a fullscreen root sends the new root; no invalid close(-1) packet.
+		player.getDisplay().close(this, false);
+	}
+
+	private static Map<Integer, Integer> values(int enumId) {
+		GameConstantContainer<Integer> constants = GameConstants.getIntegerConstants(enumId);
+		return constants.getValues();
+	}
+
+	private static Integer option(int enumId, int index) {
+		return enumId == -1 ? null : values(enumId).get(index);
+	}
+
+	private static int[] styles(Appearance appearance) {
+		int[] result = new int[7];
+		for (int i = 0; i < result.length; i++) result[i] = appearance.getStyle(i);
+		return result;
+	}
+
+	private static int[] colours(Appearance appearance) {
+		int[] result = new int[5];
+		for (int i = 0; i < result.length; i++) result[i] = appearance.getColor(i);
+		return result;
+	}
+}

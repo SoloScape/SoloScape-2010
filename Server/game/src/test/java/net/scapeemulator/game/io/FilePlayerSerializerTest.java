@@ -69,6 +69,41 @@ public class FilePlayerSerializerTest {
 	}
 
 	@Test
+	public void creationResumesUntilConfirmedAndKeepsTheChosenAppearance() throws Exception {
+		Path directory = temporary.newFolder().toPath();
+		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
+		Player player = load(serializer, "newlook", "password");
+		assertTrue(player.isCharacterCreationRequired());
+		player.setAppearance(new Appearance(Gender.FEMALE, new int[] {697, 0, 153, 147, 68, 129, 79},
+				new int[] {20, 24, 24, 0, 7}));
+		serializer.save(player);
+		Player resumed = load(new FilePlayerSerializer(directory), "newlook", "password");
+		assertTrue(resumed.isCharacterCreationRequired());
+		assertEquals(Gender.FEMALE, resumed.getAppearance().getGender());
+		resumed.setCharacterCreationRequired(false);
+		serializer.save(resumed);
+		Player confirmed = load(new FilePlayerSerializer(directory), "newlook", "password");
+		assertFalse(confirmed.isCharacterCreationRequired());
+		assertEquals(697, confirmed.getAppearance().getStyle(0));
+		assertEquals(7, confirmed.getAppearance().getColor(4));
+	}
+
+	@Test
+	public void profilesFromBeforeCreationWasAddedKeepTheirAcceptedAppearance() throws Exception {
+		Path directory = temporary.newFolder().toPath();
+		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
+		load(serializer, "oldlook", "password");
+		Path profile = directory.resolve("player-oldlook.properties");
+		Properties data = new Properties();
+		try (InputStream input = Files.newInputStream(profile)) { data.load(input); }
+		data.remove("appearance.confirmed");
+		try (OutputStream output = Files.newOutputStream(profile)) { data.store(output, "legacy profile"); }
+		Player legacy = load(serializer, "oldlook", "password");
+		assertFalse(legacy.isCharacterCreationRequired());
+		assertEquals(Appearance.DEFAULT_APPEARANCE.getStyle(0), legacy.getAppearance().getStyle(0));
+	}
+
+	@Test
 	public void removedItemsStayRemovedAndReturningCharactersDoNotReceiveStarterStockAgain() throws Exception {
 		Path directory = temporary.newFolder().toPath();
 		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);

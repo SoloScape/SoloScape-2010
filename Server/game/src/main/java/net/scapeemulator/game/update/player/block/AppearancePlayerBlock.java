@@ -70,7 +70,7 @@ public final class AppearancePlayerBlock extends PlayerBlock {
 				} else {
 					int app = getAppearance(i);
 					if (app != -1) {
-						propertiesBuilder.put(DataType.SHORT, 0x100 | app);
+						propertiesBuilder.put(DataType.SHORT, 0x100 + app);
 					} else {
 						propertiesBuilder.put(DataType.BYTE, 0);
 					}
