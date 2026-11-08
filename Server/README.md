@@ -20,8 +20,38 @@ absolute path of another `www` directory if needed. Configuration remains in
 `game/data`; the launcher creates `serializer.conf` from its example on first
 run if it is missing. Launching does not compile anything.
 
-The default dummy serializer accepts any username/password and does not save
-players. The client launcher needs a 32-bit Java 8 JDK with `appletviewer.exe`.
+The default file serializer saves characters locally. The client launcher needs
+a 32-bit Java 8 JDK with `appletviewer.exe`.
+
+## Character saves
+
+The active `game/data/serializer.conf` and its example use:
+
+```properties
+type=file
+directory=data/characters
+```
+
+The directory is relative to the game module, so character files live in
+`Server/game/data/characters/player-<username>.properties`. These local files
+are ignored by Git. Back up this directory to preserve your characters.
+
+The first login creates the account using the entered password; subsequent
+logins require that same password. Passwords are stored as bcrypt hashes.
+New accounts start at Tutorial Island's starting house (`3094, 3107`, height 0).
+Existing starter settings and development rights apply only when creating a
+new account. Returning characters restore their backpack, equipment, bank,
+personal sample stock, skill XP and levels, appearance, exact tile and height,
+run energy, and persistent player settings.
+
+Logout or disconnection saves the character before releasing the account for
+another login. Normal server shutdown also saves online characters. Forcefully
+terminating the Java process cannot run the shutdown hook. A damaged profile
+rejects login instead of replacing the character with a fresh account.
+
+The old `type=dummy` mode remains available for disposable development sessions;
+it does not save progress. Characters from earlier dummy sessions had no save
+files to import.
 
 ## Source and data layout
 

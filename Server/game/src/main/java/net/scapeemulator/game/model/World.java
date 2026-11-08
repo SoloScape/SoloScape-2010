@@ -37,9 +37,6 @@ public final class World {
 
 	private World(WorldConfiguration configuration) {
 		this.configuration = configuration;
-		Npc npc = new Npc(8349);
-		npc.setPosition(new Position(3192, 3399));
-		npcs.add(npc);
 	}
 
 	public MobList<Player> getPlayers() {

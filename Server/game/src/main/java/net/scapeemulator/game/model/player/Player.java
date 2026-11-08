@@ -306,7 +306,7 @@ public final class Player extends Mob {
 		this.appearanceTicket = nextAppearanceTicket();
 	}
 
-	public void setEnergy(int energy) {
+	public void setEnergy(double energy) {
 		updateEnergy(energy);
 		this.send(new EnergyMessage(getEnergy()));
 	}
@@ -407,6 +407,10 @@ public final class Player extends Mob {
 
 	public int getEnergy() {
 		return (int) energy;
+	}
+
+	public double getPreciseEnergy() {
+		return energy;
 	}
 
 	public ChatMessage getChatMessage() {

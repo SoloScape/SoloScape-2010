@@ -9,6 +9,16 @@ import net.scapeemulator.game.model.mob.combat.ExperienceType;
 public final class Npc extends Mob {
 	private int type;
 	private boolean transform;
+	private boolean attackable;
+
+	public boolean isAttackable() {
+		return attackable;
+	}
+
+	/** Enable only for spawns whose second menu option is Attack. */
+	public void setAttackable(boolean attackable) {
+		this.attackable = attackable;
+	}
 
 	public Npc(int type) {
 		skillSet.getSkillRoof()[3] = 10000;

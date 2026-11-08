@@ -75,6 +75,11 @@ public final class LoginSession extends Session<LoginService> {
 		pipeline.addFirst(new PacketEncoder(outRandom), new OutgoingMessageEncoder(server.getCodecRepository()),
 				new PacketDecoder(inRandom, Messages.SIZES), new IncomingMessageDecoder(server.getCodecRepository()));
 		session.init(displayMode);
+		if (!channel.isActive()) service.addLogoutRequest(player);
+	}
+
+	boolean isConnected() {
+		return channel.isActive();
 	}
 
 	@Override

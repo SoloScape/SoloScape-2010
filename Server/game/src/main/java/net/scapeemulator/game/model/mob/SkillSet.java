@@ -148,6 +148,17 @@ public final class SkillSet {
 		return level.length;
 	}
 
+	/** Restore a saved skill without awarding XP or firing level-up effects. */
+	public void loadSkill(int skill, int currentLevel, int maximumLevel, double experience) {
+		if (skill < 0 || skill >= size() || currentLevel < 0 || currentLevel > 65535
+				|| maximumLevel < 1 || maximumLevel > 65535 || !Double.isFinite(experience)
+				|| experience < 0 || experience > MAXIMUM_EXPERIENCE)
+			throw new IllegalArgumentException("Invalid saved skill");
+		level[skill] = currentLevel;
+		skillRoof[skill] = maximumLevel;
+		exp[skill] = experience;
+	}
+
 	public int getCurrentLevel(int skill) {
 		return level[skill];
 	}

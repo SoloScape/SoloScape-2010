@@ -41,7 +41,7 @@ public final class GameSession extends Session<GameServer> {
 		player.getDisplay().initialize(displayMode);
 		/* refresh skills, energy, etc. */
 		player.getSkillSet().refresh();
-		player.setEnergy(player.getEnergy()); // TODO: nicer way than this?
+		player.setEnergy(player.getPreciseEnergy());
 	}
 
 	@Override

@@ -15,7 +15,36 @@ public class PathFinder {
 	// next to the target location instead of on it TODO implement
 	// Offsets, the size of this npc, object, ... TODO implement
 	public static void findPath(Player mob, int tX, int tY, int offsetX, int offsetY, boolean nearby, boolean run) {
-		if (mob.getPosition().getX() == tX && mob.getPosition().getY() == tY) {
+		findPath(mob, tX, tY, nearby, run, false);
+	}
+
+	public static void findPathToAdjacent(Player mob, Position target, boolean run) {
+		if (mob.getPosition().getHeight() == target.getHeight())
+			findPath(mob, target.getX(), target.getY(), false, run, true);
+	}
+
+	public static boolean isAdjacentReachable(Player mob, Position target) {
+		Position source = mob.getPosition();
+		if (source.getHeight() != target.getHeight())
+			return false;
+		int baseX = (source.getChunkX() - 6) << 3;
+		int baseY = (source.getChunkY() - 6) << 3;
+		return canReachAdjacent(WorldMap.getArea(source, FieldOfView.REGULAR).getFlags(),
+				source.getX() - baseX, source.getY() - baseY, target.getX() - baseX, target.getY() - baseY);
+	}
+
+	private static boolean canReachAdjacent(int[][] flags, int x, int y, int targetX, int targetY) {
+		if (targetX < 0 || targetY < 0 || targetX >= flags.length || targetY >= flags[0].length)
+			return false;
+		int dx = targetX - x, dy = targetY - y;
+		if (Math.abs(dx) + Math.abs(dy) != 1)
+			return false;
+		int mask = dx == -1 ? 0x42240000 : dx == 1 ? 0x60240000 : dy == -1 ? 0x40a40000 : 0x48240000;
+		return (flags[targetX][targetY] & mask) == 0;
+	}
+
+	private static void findPath(Player mob, int tX, int tY, boolean nearby, boolean run, boolean adjacent) {
+		if (!adjacent && mob.getPosition().getX() == tX && mob.getPosition().getY() == tY) {
 			return;
 		}
 		// Gets the map we are going to use
@@ -66,7 +95,8 @@ public class PathFinder {
 													// indexes, the queueWrite
 													// will also do this
 
-			if (currentX == targetX && currentY == targetY) {
+			if (adjacent ? canReachAdjacent(map.getFlags(), currentX, currentY, targetX, targetY)
+					: currentX == targetX && currentY == targetY) {
 				// Path is found, break the loop
 				routeExists = true;
 				break;

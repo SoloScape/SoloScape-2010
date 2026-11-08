@@ -2,6 +2,8 @@ package net.scapeemulator.game.model.player.var;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.Map;
+import java.util.TreeMap;
 
 import net.scapeemulator.game.cache.VarBitDefinition;
 import net.scapeemulator.game.model.player.Player;
@@ -351,6 +353,33 @@ public final class Status {
 
 	public boolean isLoaded() {
 		return loaded;
+	}
+
+	/** Snapshot current values plus edits queued during the last game tick. */
+	public Map<Integer, Integer> getPersistentVariables() {
+		int[] values = loaded ? currentVars.clone() : waitingVars.clone();
+		for (int id : updatedVars)
+			values[id] = waitingVars[id];
+		for (VarBit bit : updatedVarBits) {
+			VarBitDefinition definition = VarBitDefinition.forId(bit.id);
+			if (definition == null || definition.getVarId() >= values.length)
+				continue;
+			int bottom = definition.getBottomBit();
+			int mask = max_values[definition.getTopBit() - bottom];
+			int value = bit.set < 0 || bit.set > mask ? 0 : bit.set;
+			mask <<= bottom;
+			int id = definition.getVarId();
+			values[id] = (values[id] & ~mask) | ((value << bottom) & mask);
+		}
+		Map<Integer, Integer> saved = new TreeMap<>();
+		for (int id = 0; id < values.length; id++) {
+			PVariable<?> variable = PVariable.getVarById(id);
+			boolean preference = id == 43 || id == 115 || id == 173 || id == 304;
+			if (preference || (variable != null && variable.getPersistence() == PVariable.Persistence.PERSISTENT)
+					|| (variable == null && values[id] != 0))
+				saved.put(id, values[id]);
+		}
+		return saved;
 	}
 
 	static {

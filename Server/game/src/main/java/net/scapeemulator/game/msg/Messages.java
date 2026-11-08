@@ -145,6 +145,8 @@ public class Messages {
 
 		repository.bind(new ObjectOptionOneMessageDecoder());// TODO: Generize
 		repository.bind(new ObjectOptionTwoMessageDecoder());
+		repository.bind(new NpcOptionTwoMessageDecoder());
+		repository.bind(new WorldMapClickMessageDecoder());
 
 		repository.bind(new SequenceNumberMessageDecoder());
 
@@ -213,6 +215,8 @@ public class Messages {
 		disp.bind(FlagsMessage.class, new FlagsMessageHandler());
 		disp.bind(SequenceNumberMessage.class, new SequenceNumberMessageHandler());
 		disp.bind(ObjectClickMessage.class, new ObjectClickMessageHandler());
+		disp.bind(NpcOptionTwoMessage.class, new NpcOptionTwoMessageHandler());
+		disp.bind(WorldMapClickMessage.class, new WorldMapClickMessageHandler());
 		disp.bind(ExamineMessage.class, new ExamineHandler());
 
 		disp.bind(InterfaceAction.class, new InterfaceActionHandler<InterfaceAction>());

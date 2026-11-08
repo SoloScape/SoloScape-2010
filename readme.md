@@ -43,7 +43,7 @@ Server/
   docs/             Gameplay implementation notes
   flooder/          Optional load-testing utility
   game/
-    data/           World configuration, equipment data, landscape keys
+    data/           Configuration, equipment, landscape keys, character saves
     src/main/java/  Game engine, content, interfaces, Crosstalk client
     src/test/java/  Game tests
   js5/              Cache-update and world-list services

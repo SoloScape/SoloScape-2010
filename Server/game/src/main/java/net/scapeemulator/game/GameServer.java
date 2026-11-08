@@ -16,6 +16,7 @@ import net.scapeemulator.game.cache.VarBitDefinition;
 import net.scapeemulator.game.command.CommandDispatcher;
 import net.scapeemulator.game.conf.WorldConfiguration;
 import net.scapeemulator.game.io.DummyPlayerSerializer;
+import net.scapeemulator.game.io.FilePlayerSerializer;
 import net.scapeemulator.game.io.JdbcPlayerSerializer;
 import net.scapeemulator.game.io.PlayerSerializer;
 import net.scapeemulator.game.model.World;
@@ -39,6 +40,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketAddress;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -107,6 +109,7 @@ public final class GameServer implements Service {
 		crosstalk = createCrosstalkConnection();
 		logger.info("Using Crosstalk client: " + crosstalk.getClass().getName() + ".");
 		loginService = new LoginService(serializer, version);
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> loginService.saveAllPlayers(world), "character-save"));
 
 		/* start netty */
 		httpBootstrap.group(loopGroup);
@@ -146,6 +149,8 @@ public final class GameServer implements Service {
 		switch (type) {
 		case "dummy":
 			return new DummyPlayerSerializer();
+		case "file":
+			return new FilePlayerSerializer(Paths.get(properties.getProperty("directory", "data/characters")));
 		case "jdbc":
 			String url = (String) properties.get("url");
 			String username = (String) properties.get("username");
@@ -196,8 +201,10 @@ public final class GameServer implements Service {
 		 * As the MobList class is not thread-safe, players must be registered
 		 * within the game logic processing code.
 		 */
-		loginService.registerNewPlayers(world);
-		world.tick();
+		synchronized (world) {
+			loginService.registerNewPlayers(world);
+			world.tick();
+		}
 	}
 
 	public World getWorld() {
