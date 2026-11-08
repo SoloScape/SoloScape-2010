@@ -7,7 +7,6 @@ import java.util.Map;
 
 import net.scapeemulator.game.model.hud.interf.Interface;
 import net.scapeemulator.game.model.hud.interf.Tab;
-import net.scapeemulator.game.content.tutorial.TutorialTabs;
 import net.scapeemulator.game.model.hud.interf.action.InterfaceAction;
 import net.scapeemulator.game.model.hud.interf.type.InterfacePersistence;
 import net.scapeemulator.game.model.player.Player;
@@ -49,7 +48,6 @@ public final class HeadsUpDisplay {
 				setRoot(target.getRoot(), false);
 		}
 		mode = target;
-		TutorialTabs.refreshIcons(player, mode.getRoot().getId());
 	}
 
 	public boolean open(Interface inter, boolean forced) {
@@ -134,7 +132,6 @@ public final class HeadsUpDisplay {
 			interfaces.put(DisplayMode.FULLSCREEN_INTERFACE, root);
 			player.send(new InterfaceRootMessage(root.getId(), refresh));
 			this.root = root;
-			TutorialTabs.refreshIcons(player, root.getId());
 		}
 	}
 

@@ -13,7 +13,6 @@ import net.scapeemulator.game.model.hud.skill.SkillsTab;
 import net.scapeemulator.game.model.hud.util.MusicTab;
 import net.scapeemulator.game.model.hud.util.ObjectiveTab;
 import net.scapeemulator.game.model.player.Player;
-import net.scapeemulator.game.msg.interf.child.InterfaceVisibleMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,26 +25,10 @@ public final class TutorialTabs {
     private TutorialTabs() {
     }
 
-    public static void refreshIcons(Player player, int rootId) {
-        if (!player.isTutorialTabsRestricted())
-            return;
-        for (int slot = 0; slot < 16; slot++) {
-            int child = iconChild(rootId, slot);
-            if (child >= 0)
-                player.send(new InterfaceVisibleMessage(rootId, child, player.isTutorialTabUnlocked(slot)));
-        }
-    }
-
-    /** Sprite/icon widget per tab in the original build-592 548/746 HUD cache. */
-    public static int iconChild(int rootId, int slot) {
-        if (slot < 0 || slot >= 16)
-            return -1;
-        if (rootId == 548)
-            return slot < 8 ? 59 + slot : 89 + slot - 8;
-        if (rootId == 746)
-            return 123 - slot;
-        return -1;
-    }
+    // Tab content remains locked server-side. The client's tab icons cannot
+    // safely be hidden until the real build-592 IF_SETHIDE packet is verified.
+    // Opcode 21 is a SIX-BYTE jingle; sending 7-byte visibility payloads under
+    // it corrupts the stream and disconnects newly created accounts.
 
     private static Interface interfaceFor(int slot) {
         switch (slot) {
@@ -91,8 +74,6 @@ public final class TutorialTabs {
             return false;
         }
         player.getDisplay().open(interfaceFor(slot), false);
-        if (player.getDisplay().getMode() != null)
-            refreshIcons(player, player.getDisplay().getMode().getRoot().getId());
         return true;
     }
 
@@ -113,12 +94,7 @@ public final class TutorialTabs {
         // Offline recovery can update the saved mask without opening HUD tabs.
         if (player.getSession() == null)
             return;
-        // Reset the per-component hidden state when lifting the restriction.
-        for (int slot = 0; slot < 16; slot++) {
-            int fixed = iconChild(548, slot);
-            int resized = iconChild(746, slot);
-            player.send(new InterfaceVisibleMessage(548, fixed, true));
-            player.send(new InterfaceVisibleMessage(746, resized, true));
+        for (int slot = 0; slot < Tab.TAB_COUNT; slot++) {
             Interface inter = interfaceFor(slot);
             if (inter != null) player.getDisplay().open(inter, false);
         }

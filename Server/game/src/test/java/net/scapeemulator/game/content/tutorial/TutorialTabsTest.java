@@ -1,9 +1,12 @@
 package net.scapeemulator.game.content.tutorial;
 
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.ByteBuf;
-import net.scapeemulator.api.net.packet.Packet;
 import net.scapeemulator.game.io.DummyPlayerSerializer;
+import net.scapeemulator.api.message.codec.CodecRepository;
+import net.scapeemulator.game.msg.Messages;
+import net.scapeemulator.game.msg.audio.Jingle;
+import net.scapeemulator.game.msg.interf.child.InterfaceVisibleMessage;
+import net.scapeemulator.game.util.LandscapeKeyTable;
+import java.lang.reflect.Method;
 import net.scapeemulator.game.model.inventory.Inventory;
 import net.scapeemulator.game.model.inventory.InventoryInfo;
 import org.junit.BeforeClass;
@@ -13,8 +16,6 @@ import net.scapeemulator.game.model.hud.combat.AttackTab;
 import net.scapeemulator.game.model.hud.interf.Tab;
 import net.scapeemulator.game.model.hud.settings.SettingsTab;
 import net.scapeemulator.game.model.player.Player;
-import net.scapeemulator.game.msg.interf.child.InterfaceVisibleMessage;
-import net.scapeemulator.game.msg.interf.child.InterfaceVisibleMessageEncoder;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -89,40 +90,28 @@ public class TutorialTabsTest {
     }
 
     @Test
-    public void cacheVerifiedIconMappingsCoverBothHudLayouts() {
-        for (int i = 0; i < 16; i++) {
-            assertEquals(i < 8 ? 59 + i : 89 + i - 8, TutorialTabs.iconChild(548, i));
-            assertEquals(123 - i, TutorialTabs.iconChild(746, i));
-        }
-        assertEquals(93, TutorialTabs.iconChild(548, Tab.SETTINGS));
-        assertEquals(111, TutorialTabs.iconChild(746, Tab.SETTINGS));
-        assertEquals(-1, TutorialTabs.iconChild(900, Tab.SETTINGS));
-        assertEquals(-1, TutorialTabs.iconChild(548, Tab.LOGOUT));
-    }
-
-    private static int readIntLittle(ByteBuf buffer) {
-        return buffer.readUnsignedByte()
-                | (buffer.readUnsignedByte() << 8)
-                | (buffer.readUnsignedByte() << 16)
-                | (buffer.readUnsignedByte() << 24);
+    public void build592CodecNeverRegistersVisibilityAsTheJinglePacket() throws Exception {
+        CodecRepository repository = new CodecRepository();
+        Method register = Messages.class.getDeclaredMethod("init", CodecRepository.class,
+                LandscapeKeyTable.class);
+        register.setAccessible(true);
+        register.invoke(null, repository, (LandscapeKeyTable) null);
+        assertNull("Broken IF_SETHIDE encoder must stay unbound",
+                repository.get(InterfaceVisibleMessage.class));
+        assertNotNull("Real six-byte jingle codec must remain available",
+                repository.get(Jingle.class));
     }
 
     @Test
-    public void originalClientIfSetHidePacketEncodesHiddenAndVisibleStates() throws Exception {
-        InterfaceVisibleMessageEncoder encoder = new InterfaceVisibleMessageEncoder();
-        Packet hidden = encoder.encode(Unpooled.buffer().alloc(), new InterfaceVisibleMessage(548, 59, false));
-        Packet visible = encoder.encode(Unpooled.buffer().alloc(), new InterfaceVisibleMessage(548, 59, true));
-        try {
-            assertEquals(21, hidden.getOpcode());
-            assertEquals(0xff, hidden.getPayload().readUnsignedByte());
-            assertEquals(0, hidden.getPayload().readUnsignedShort());
-            assertEquals((548 << 16) | 59, readIntLittle(hidden.getPayload()));
-            assertEquals(0, visible.getPayload().readUnsignedByte());
-            assertEquals(0, visible.getPayload().readUnsignedShort());
-            assertEquals((548 << 16) | 59, readIntLittle(visible.getPayload()));
-        } finally {
-            hidden.getPayload().release();
-            visible.getPayload().release();
-        }
+    public void firstLoginDoesNotUseTheIncorrectJingleOpcodeForTabHiding() {
+        Player player = new DummyPlayerSerializer().load("safehud", "password").getPlayer();
+        player.getDisplay().initialize(DisplayMode.FIXED);
+        new TutorialTrigger().trigger(player, "tutorial_complete");
+
+        // The first-login path is safe without any seven-byte visibility
+        // messages. The Settings tab is present; other tab contents are locked.
+        assertNotNull(player.getDisplay().getInterface(SettingsTab.INSTANCE.getId()));
+        assertNull(player.getDisplay().getInterface(AttackTab.INSTANCE.getId()));
+        assertNull(player.getDisplay().getInterface(InventoryTab.INSTANCE.getId()));
     }
 }
