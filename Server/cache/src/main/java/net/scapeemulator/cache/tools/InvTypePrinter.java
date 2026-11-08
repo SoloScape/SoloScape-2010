@@ -13,7 +13,7 @@ public final class InvTypePrinter {
 
 	public static void main(String[] args) throws IOException {
 		PrintStream out = new PrintStream("./invtype.txt");
-		try (Cache cache = new Cache(FileStore.open("../cache/"))) {
+		try (Cache cache = new Cache(FileStore.open("../data/cache/"))) {
 			ReferenceTable rt = ReferenceTable.decode(Container.decode(cache.getStore().read(255, 2)).getData());
 			int memberCount = rt.getEntry(5).capacity();
 			out.println("InvTypes: " + memberCount);

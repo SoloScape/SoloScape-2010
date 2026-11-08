@@ -60,7 +60,7 @@ public final class ClientScriptDumper {
 
 	public static void main(String[] args) throws IOException {
 		PrintStream out = new PrintStream("./cs2.txt");
-		try (Cache cache = new Cache(FileStore.open("../cache/"))) {
+		try (Cache cache = new Cache(FileStore.open("../data/cache/"))) {
 			ReferenceTable rt = ReferenceTable.decode(Container.decode(cache.getStore().read(255, 12)).getData());
 			for (int id = 0; id < rt.capacity(); id++) {
 //			if(true) {

@@ -5,9 +5,13 @@ the bytecode bundler that adapts the client to the ScapeEmulator server.
 
 ## Layout
 
-- `asm/data` contains the original client, loader, unpacker, and native inputs.
-- `asm/src` contains the bytecode transformations and bundler.
-- `www` contains the files served by the game server on port 8081.
+- `bundler/data` contains the original client, loader, unpacker, and native inputs.
+- `bundler/src` contains the bytecode transformations and bundler.
+- `www` contains the web launchers and generated files served by the game server on port 8081.
+- `.tools/lib` holds downloaded build dependencies; `bundler/target` holds compiled output.
+- Local `legacy` folders contain unused input archives and IDE metadata. They are
+  ignored by Git and unused by the build; deletion was blocked by the execution
+  policy, so they may be removed manually.
 
 ## Build
 
@@ -28,9 +32,9 @@ match the server's key pair if the keys are regenerated.
 After building, run the camera input smoke test from `Client` in PowerShell:
 
 ```powershell
-New-Item -ItemType Directory -Force asm/target/test-classes | Out-Null
-javac -d asm/target/test-classes asm/src/test/java/net/scapeemulator/asm/bundler/MiddleMouseCameraTest.java
-java '-Xverify:all' '-Djava.awt.headless=true' -cp asm/target/test-classes net.scapeemulator.asm.bundler.MiddleMouseCameraTest www/runescape.jar
+New-Item -ItemType Directory -Force bundler/target/test-classes | Out-Null
+javac -d bundler/target/test-classes bundler/src/test/java/net/scapeemulator/asm/bundler/MiddleMouseCameraTest.java
+java '-Xverify:all' '-Djava.awt.headless=true' -cp bundler/target/test-classes net.scapeemulator.asm.bundler.MiddleMouseCameraTest www/runescape.jar
 ```
 
 ## Run

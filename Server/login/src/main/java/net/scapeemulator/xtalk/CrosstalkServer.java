@@ -54,7 +54,7 @@ public final class CrosstalkServer implements Service {
 	}
 
 	public CrosstalkServer() throws IOException {
-		cache = new Cache(FileStore.open("../cache"));
+		cache = new Cache(FileStore.open("../data/cache"));
 		js5 = new UpdateService(VERSION, cache);
 		serverService = new GameServerService(VERSION);
 		logger.info("Starting ScapeEmulator login server...");

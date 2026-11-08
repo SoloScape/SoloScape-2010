@@ -12,7 +12,7 @@
   <name>ScapeEmulator Client</name>
 
   <modules>
-    <module>asm</module>
+    <module>bundler</module>
   </modules>
 
   <properties>

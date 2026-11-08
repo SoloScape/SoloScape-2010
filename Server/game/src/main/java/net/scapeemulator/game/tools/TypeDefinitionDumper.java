@@ -21,7 +21,7 @@ public class TypeDefinitionDumper {
 	public static void main(String[] args) throws IOException {
 		logger.info("Dumping type data...");
 
-		Cache cache = new Cache(FileStore.open("../cache"));
+		Cache cache = new Cache(FileStore.open("../data/cache"));
 		GameConstants.init(cache);
 		File file = new File("./dump/");
 		if (!file.exists()) {

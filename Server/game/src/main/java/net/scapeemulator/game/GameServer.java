@@ -78,7 +78,7 @@ public final class GameServer implements Service {
 		landscapeKeyTable = LandscapeKeyTable.open("data/landscape-keys");
 
 		/* load game cache */
-		cache = new Cache(FileStore.open("../cache"));
+		cache = new Cache(FileStore.open("../data/cache"));
 		updateService = new UpdateService(version, cache);
 		VarBitDefinition.init(cache);
 		ItemDefinition.init(cache, worldConfiguration.isMembers());

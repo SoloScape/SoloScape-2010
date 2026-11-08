@@ -6,6 +6,13 @@ title ScapeEmulator 592 - Run
 set "WORLD_ID=%~1"
 if not defined WORLD_ID set "WORLD_ID=1"
 
+if not exist "data\cache\main_file_cache.dat2" (
+    echo [ERROR] Missing game cache in %CD%\data\cache.
+    echo Extract main_file_cache.* files there before starting the server.
+    pause
+    exit /b 1
+)
+
 if not exist "game\data\serializer.conf" (
     if not exist "game\data\serializer.conf.example" (
         echo [ERROR] Missing game\data\serializer.conf.example.

@@ -23,9 +23,9 @@ if errorlevel 1 (
 )
 
 set "LIB_DIR=%CD%\.tools\lib"
-set "CLASSES_DIR=asm\target\classes"
-set "CP_FILE=asm\target\runtime-classpath.txt"
-set "SOURCES_FILE=asm\target\sources.txt"
+set "CLASSES_DIR=bundler\target\classes"
+set "CP_FILE=bundler\target\runtime-classpath.txt"
+set "SOURCES_FILE=bundler\target\sources.txt"
 
 echo ============================================================
 echo   ScapeEmulator 592 - Client Build
@@ -33,11 +33,11 @@ echo ============================================================
 echo.
 
 if not exist "%LIB_DIR%" mkdir "%LIB_DIR%"
-if not exist "asm\target" mkdir "asm\target"
+if not exist "bundler\target" mkdir "bundler\target"
 
 echo [1/3] Downloading required libraries when missing...
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $lib='%LIB_DIR%'; $base='https://repo.maven.apache.org/maven2/'; $artifacts=@('org/ow2/asm/asm/4.1/asm-4.1.jar','org/ow2/asm/asm-tree/4.1/asm-tree-4.1.jar','org/ow2/asm/asm-util/4.1/asm-util-4.1.jar','org/ow2/asm/asm-analysis/4.1/asm-analysis-4.1.jar','org/slf4j/slf4j-api/1.7.5/slf4j-api-1.7.5.jar','org/slf4j/slf4j-jdk14/1.7.5/slf4j-jdk14-1.7.5.jar'); foreach($a in $artifacts){$dest=Join-Path $lib (Split-Path $a -Leaf); if(!(Test-Path -LiteralPath $dest)){Write-Host ('Downloading '+(Split-Path $a -Leaf)); Invoke-WebRequest -UseBasicParsing -Uri ($base+$a) -OutFile $dest}}; $jars=Get-ChildItem -LiteralPath $lib -Filter '*.jar' | Sort-Object Name; $cp=[string]::Join(';',@($jars | ForEach-Object {$_.FullName})); [IO.File]::WriteAllText('%CP_FILE%',$cp,[Text.Encoding]::ASCII); $files=Get-ChildItem -LiteralPath 'asm\src\main\java' -Recurse -File -Filter '*.java'; $lines=@($files | ForEach-Object {'"'+$_.FullName+'"'}); [IO.File]::WriteAllLines('%SOURCES_FILE%',$lines,[Text.Encoding]::ASCII); Write-Host ('Prepared '+$files.Count+' Java source files and '+$jars.Count+' libraries.')"
+  "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $lib='%LIB_DIR%'; $base='https://repo.maven.apache.org/maven2/'; $artifacts=@('org/ow2/asm/asm/4.1/asm-4.1.jar','org/ow2/asm/asm-tree/4.1/asm-tree-4.1.jar','org/ow2/asm/asm-util/4.1/asm-util-4.1.jar','org/ow2/asm/asm-analysis/4.1/asm-analysis-4.1.jar','org/slf4j/slf4j-api/1.7.5/slf4j-api-1.7.5.jar','org/slf4j/slf4j-jdk14/1.7.5/slf4j-jdk14-1.7.5.jar'); foreach($a in $artifacts){$dest=Join-Path $lib (Split-Path $a -Leaf); if(!(Test-Path -LiteralPath $dest)){Write-Host ('Downloading '+(Split-Path $a -Leaf)); Invoke-WebRequest -UseBasicParsing -Uri ($base+$a) -OutFile $dest}}; $jars=Get-ChildItem -LiteralPath $lib -Filter '*.jar' | Sort-Object Name; $cp=[string]::Join(';',@($jars | ForEach-Object {$_.FullName})); [IO.File]::WriteAllText('%CP_FILE%',$cp,[Text.Encoding]::ASCII); $files=Get-ChildItem -LiteralPath 'bundler\src\main\java' -Recurse -File -Filter '*.java'; $lines=@($files | ForEach-Object {'"'+$_.FullName+'"'}); [IO.File]::WriteAllLines('%SOURCES_FILE%',$lines,[Text.Encoding]::ASCII); Write-Host ('Prepared '+$files.Count+' Java source files and '+$jars.Count+' libraries.')"
 if errorlevel 1 goto :fail
 
 set "CLIENT_CP="
@@ -53,7 +53,7 @@ if errorlevel 1 goto :fail
 
 echo.
 echo [3/3] Patching and packaging client files...
-pushd asm
+pushd bundler
 "%JAVA_EXE%" -cp "target\classes;%CLIENT_CP%" net.scapeemulator.asm.bundler.ClientBundler
 set "BUILD_RESULT=%ERRORLEVEL%"
 popd

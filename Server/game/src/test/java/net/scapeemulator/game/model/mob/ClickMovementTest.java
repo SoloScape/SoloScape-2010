@@ -23,7 +23,7 @@ public class ClickMovementTest {
 	@BeforeClass
 	public static void loadCollision() throws Exception {
 		File server = new File("Server").isDirectory() ? new File("Server") : new File("..");
-		try (Cache cache = new Cache(FileStore.open(new File(server, "cache").getPath()))) {
+		try (Cache cache = new Cache(FileStore.open(new File(server, "data/cache").getPath()))) {
 			SceneryDefinition.init(cache);
 			WorldMap.init(cache, LandscapeKeyTable.open(new File(server, "game/data/landscape-keys")));
 		}

@@ -7,6 +7,15 @@
 *.class
 
 # Game cache is distributed through GitHub Releases
-/cache/main_file_cache.*
+/data/cache/main_file_cache.*
 /cache.zip
 /resources/cache.zip
+
+# Local dependency downloads and generated diagnostic output
+/.tools/
+/legacy/
+**/dump/
+**/differences/
+/cache/cs2.txt
+/cache/invtype.txt
+/game/con_dump/
