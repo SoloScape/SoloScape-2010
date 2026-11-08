@@ -60,29 +60,33 @@ public final class RegisterDecoder extends ByteToMessageDecoder {
 				if (encryptedSize != size - 1)
 					throw new IOException("Encrypted size mismatch.");
 
-				ByteBuf secureBuffer = ByteBufUtils.rsa(buf.readBytes(encryptedSize), RsaKeySet.MODULUS,
+				ByteBuf secureBuffer = ByteBufUtils.rsa(buf.readSlice(encryptedSize), RsaKeySet.MODULUS,
 						RsaKeySet.PRIVATE_KEY);
+				try {
 				int encryptedType = secureBuffer.readUnsignedByte();
-				if (encryptedType != 10)
-					throw new IOException("Invalid encrypted block type.");
+					if (encryptedType != 10)
+						throw new IOException("Invalid encrypted block type.");
 
-				secureBuffer.readUnsignedShort();
-				int version = secureBuffer.readUnsignedShort();
-				String username = Base37Utils.decodeBase37(secureBuffer.readLong());
-				secureBuffer.readInt();
-				String password = ByteBufUtils.readString(secureBuffer);
-				secureBuffer.readInt();
-				// int affiliate =
-				secureBuffer.readUnsignedShort();
-				int day = secureBuffer.readUnsignedByte();
-				int month = secureBuffer.readUnsignedByte();
-				secureBuffer.readInt();
-				int year = secureBuffer.readUnsignedShort();
-				int country = secureBuffer.readUnsignedShort();
-				secureBuffer.readInt();
+					secureBuffer.readUnsignedShort();
+					int version = secureBuffer.readUnsignedShort();
+					String username = Base37Utils.decodeBase37(secureBuffer.readLong());
+					secureBuffer.readInt();
+					String password = ByteBufUtils.readString(secureBuffer);
+					secureBuffer.readInt();
+					// int affiliate =
+					secureBuffer.readUnsignedShort();
+					int day = secureBuffer.readUnsignedByte();
+					int month = secureBuffer.readUnsignedByte();
+					secureBuffer.readInt();
+					int year = secureBuffer.readUnsignedShort();
+					int country = secureBuffer.readUnsignedShort();
+					secureBuffer.readInt();
 
-				out.add(new RegisterCommitRequest(version, username, password, new GregorianCalendar(year, month, day),
-						country));
+					out.add(new RegisterCommitRequest(version, username, password, new GregorianCalendar(year, month, day),
+							country));
+				} finally {
+					secureBuffer.release();
+				}
 			}
 		}
 	}

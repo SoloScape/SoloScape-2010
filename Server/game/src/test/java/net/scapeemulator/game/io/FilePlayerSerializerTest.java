@@ -37,7 +37,8 @@ public class FilePlayerSerializerTest {
 		Path directory = temporary.newFolder().toPath();
 		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
 		Player original = load(serializer, "Callum", "test-password");
-		assertEquals(new Position(3094, 3107, 0), original.getPosition());
+		assertEquals(new Position(3678, 4937, 0), original.getPosition());
+		assertEquals(new Position(3678, 4938, 0), original.getOrientationPosition());
 		original.setPosition(new Position(3217, 3428, 2));
 		original.setEnergy(37.625);
 		original.getSkillSet().loadSkill(0, 72, 75, 1210421.5);
@@ -52,6 +53,7 @@ public class FilePlayerSerializerTest {
 		serializer.save(original);
 		Player restored = load(new FilePlayerSerializer(directory), "callum", "test-password");
 		assertEquals(original.getPosition(), restored.getPosition());
+		assertNull(restored.getOrientationPosition()); // Don't reset a returning player's facing.
 		assertEquals(37.625, restored.getPreciseEnergy(), 0);
 		for (int i = 0; i < original.getSkillSet().size(); i++) {
 			assertEquals(original.getSkillSet().getCurrentLevel(i), restored.getSkillSet().getCurrentLevel(i));
@@ -66,6 +68,99 @@ public class FilePlayerSerializerTest {
 		for (int i = 0; i < 7; i++) assertEquals(original.getAppearance().getStyle(i), restored.getAppearance().getStyle(i));
 		for (int i = 0; i < 5; i++) assertEquals(original.getAppearance().getColor(i), restored.getAppearance().getColor(i));
 		assertEquals(original.getRights(), restored.getRights());
+	}
+
+	@Test
+	public void creationResumesUntilConfirmedAndKeepsTheChosenAppearance() throws Exception {
+		Path directory = temporary.newFolder().toPath();
+		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
+		Player player = load(serializer, "newlook", "password");
+		assertTrue(player.isCharacterCreationRequired());
+		player.setAppearance(new Appearance(Gender.FEMALE, new int[] {697, 0, 153, 147, 68, 129, 79},
+				new int[] {20, 24, 24, 0, 7}));
+		serializer.save(player);
+		Player resumed = load(new FilePlayerSerializer(directory), "newlook", "password");
+		assertTrue(resumed.isCharacterCreationRequired());
+		assertEquals(NewCharacterSpawn.POSITION, resumed.getPosition());
+		assertEquals(new Position(3678, 4938, 0), resumed.getOrientationPosition());
+		assertEquals(Gender.FEMALE, resumed.getAppearance().getGender());
+		resumed.setCharacterCreationRequired(false);
+		serializer.save(resumed);
+		Player confirmed = load(new FilePlayerSerializer(directory), "newlook", "password");
+		assertFalse(confirmed.isCharacterCreationRequired());
+		assertEquals(NewCharacterSpawn.POSITION, confirmed.getPosition());
+		assertNull(confirmed.getOrientationPosition()); // Only new/pending characters are reoriented.
+		assertEquals(697, confirmed.getAppearance().getStyle(0));
+		assertEquals(7, confirmed.getAppearance().getColor(4));
+	}
+
+	@Test
+	public void tutorialTabUnlocksPersistWithoutAffectingOlderAccounts() throws Exception {
+		Path dir = temporary.newFolder().toPath();
+		FilePlayerSerializer serializer = new FilePlayerSerializer(dir);
+		Player newPlayer = load(serializer, "tabprogress", "password");
+		assertTrue(newPlayer.isTutorialTabsRestricted());
+		assertEquals(1 << net.scapeemulator.game.model.hud.interf.Tab.SETTINGS,
+				newPlayer.getTutorialTabMask());
+		newPlayer.setCharacterCreationRequired(false);
+		newPlayer.setControlsTutorialPending(true);
+		newPlayer.setTutorialTabState(true,
+				newPlayer.getTutorialTabMask() | (1 << net.scapeemulator.game.model.hud.interf.Tab.INVENTORY));
+		serializer.save(newPlayer);
+
+		Player loaded = load(new FilePlayerSerializer(dir), "tabprogress", "password");
+		assertTrue(loaded.isTutorialTabsRestricted());
+		assertTrue(loaded.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.SETTINGS));
+		assertTrue(loaded.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.INVENTORY));
+		assertFalse(loaded.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.ATTACK));
+		assertFalse(loaded.isCharacterCreationRequired());
+
+		loaded.setTutorialTabState(false, (1 << net.scapeemulator.game.model.hud.interf.Tab.TAB_COUNT) - 1);
+		serializer.save(loaded);
+		Player completed = load(new FilePlayerSerializer(dir), "tabprogress", "password");
+		assertFalse(completed.isTutorialTabsRestricted());
+		assertTrue(completed.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.ATTACK));
+	}
+
+	@Test
+	public void cameraControlsLessonIsSavedUntilThePlayerRotatesTheView() throws Exception {
+		Path directory = temporary.newFolder().toPath();
+		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
+		Player player = load(serializer, "cameranew", "password");
+		assertFalse(player.isControlsTutorialPending());
+		player.setCharacterCreationRequired(false);
+		player.setControlsTutorialPending(true);
+		serializer.save(player);
+
+		Player resumed = load(new FilePlayerSerializer(directory), "cameranew", "password");
+		assertFalse(resumed.isCharacterCreationRequired());
+		assertTrue(resumed.isControlsTutorialPending());
+		assertEquals(player.getPosition(), resumed.getPosition());
+		resumed.setControlsTutorialPending(false);
+		serializer.save(resumed);
+
+		Player completed = load(new FilePlayerSerializer(directory), "cameranew", "password");
+		assertFalse(completed.isControlsTutorialPending());
+		assertFalse(completed.isCharacterCreationRequired());
+	}
+
+	@Test
+	public void profilesFromBeforeCreationWasAddedKeepTheirAcceptedAppearance() throws Exception {
+		Path directory = temporary.newFolder().toPath();
+		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
+		load(serializer, "oldlook", "password");
+		Path profile = directory.resolve("player-oldlook.properties");
+		Properties data = new Properties();
+		try (InputStream input = Files.newInputStream(profile)) { data.load(input); }
+		data.remove("appearance.confirmed");
+		data.remove("tutorial.tabs.restricted");
+		data.remove("tutorial.tabs.mask");
+		try (OutputStream output = Files.newOutputStream(profile)) { data.store(output, "legacy profile"); }
+		Player legacy = load(serializer, "oldlook", "password");
+		assertFalse(legacy.isCharacterCreationRequired());
+		assertFalse(legacy.isTutorialTabsRestricted());
+		assertTrue(legacy.isTutorialTabUnlocked(net.scapeemulator.game.model.hud.interf.Tab.INVENTORY));
+		assertEquals(Appearance.DEFAULT_APPEARANCE.getStyle(0), legacy.getAppearance().getStyle(0));
 	}
 
 	@Test

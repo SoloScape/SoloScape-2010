@@ -3,6 +3,8 @@ setlocal EnableExtensions DisableDelayedExpansion
 cd /d "%~dp0"
 title ScapeEmulator 592 - Client
 
+rem This launcher does not listen on a TCP port. It connects to the running
+rem game server on 8081, so clearing that port here would stop the server.
 set "CLIENT_URL=http://127.0.0.1:8081/index.html"
 
 if not exist "www\loader.jar" (

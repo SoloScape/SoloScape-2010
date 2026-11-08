@@ -10,8 +10,10 @@ import net.scapeemulator.api.message.handler.MessageDispatcher;
 import net.scapeemulator.cache.Cache;
 import net.scapeemulator.cache.FileStore;
 import net.scapeemulator.game.cache.GameConstants;
+import net.scapeemulator.cache.tools.ControlsInterfaceInstaller;
 import net.scapeemulator.game.cache.ItemDefinition;
 import net.scapeemulator.game.cache.SceneryDefinition;
+import net.scapeemulator.game.cache.StructDefinition;
 import net.scapeemulator.game.cache.VarBitDefinition;
 import net.scapeemulator.game.command.CommandDispatcher;
 import net.scapeemulator.game.conf.WorldConfiguration;
@@ -81,12 +83,16 @@ public final class GameServer implements Service {
 
 		/* load game cache */
 		cache = new Cache(FileStore.open("../data/cache"));
+		// A native centred controls window, installed before JS5 checksums are
+		// built so the client fetches the sprite and interface together.
+		ControlsInterfaceInstaller.install(cache);
 		updateService = new UpdateService(version, cache);
 		VarBitDefinition.init(cache);
 		ItemDefinition.init(cache, worldConfiguration.isMembers());
 		EquipmentDefinition.init();
 		SceneryDefinition.init(cache);
 		GameConstants.init(cache);
+		StructDefinition.init(cache);
 		WorldMap.init(cache, landscapeKeyTable);
 		logger.info("Type definitions loaded... Registering plugins...");
 

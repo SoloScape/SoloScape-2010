@@ -9,6 +9,7 @@ import net.scapeemulator.game.model.constants.Interfaces;
 import net.scapeemulator.game.model.constants.Skill;
 import net.scapeemulator.game.model.entity.Position;
 import net.scapeemulator.game.model.hud.HeadsUpDisplay;
+import net.scapeemulator.game.model.hud.interf.Tab;
 import net.scapeemulator.game.model.hud.combat.PrayerTab;
 import net.scapeemulator.game.model.mob.Mob;
 import net.scapeemulator.game.model.mob.Animation;
@@ -61,6 +62,18 @@ public final class Player extends Mob {
 	private final List<Npc> localNpcs = new ArrayList<>();
 
 	private Appearance appearance = Appearance.DEFAULT_APPEARANCE;
+	private boolean characterCreationRequired;
+	private int characterCreationCategory;
+	private boolean controlsTutorialPending;
+	private int controlsTutorialOpeningDelay;
+	private long controlsTutorialShownAt;
+	private long controlsTutorialLastSentAt;
+	private int controlsTutorialResends;
+	// Only first-time tutorial characters have gated tabs. Old profiles are unrestricted.
+	private boolean tutorialTabsRestricted;
+	private int tutorialTabMask;
+	private boolean cameraPositionKnown;
+	private int lastCameraYaw, lastCameraPitch;
 	private int[] appearanceTickets = new int[World.MAX_PLAYERS];
 	private int[] tickets = new int[World.MAX_PLAYERS];
 	private int appearanceTicket = nextAppearanceTicket();
@@ -424,6 +437,115 @@ public final class Player extends Mob {
 	public void setAppearance(Appearance appearance) {
 		this.appearance = appearance;
 		refreshAppearance();
+	}
+
+	/** Store a CS2-previewed style/colour without sending another appearance
+	 * block. The 592 client scripts 2743/2745 update the local model themselves.
+	 * Call refreshAppearance once the player confirms the design. */
+	public void setCharacterCreationAppearance(Appearance appearance) {
+		this.appearance = appearance;
+	}
+
+	public boolean isCharacterCreationRequired() {
+		return characterCreationRequired;
+	}
+
+	public void setCharacterCreationRequired(boolean required) {
+		characterCreationRequired = required;
+	}
+
+	public boolean isTutorialTabsRestricted() {
+		return tutorialTabsRestricted;
+	}
+
+	public int getTutorialTabMask() {
+		return tutorialTabMask;
+	}
+
+	public void setTutorialTabState(boolean restricted, int mask) {
+		if ((mask & ~((1 << Tab.TAB_COUNT) - 1)) != 0)
+			throw new IllegalArgumentException("Invalid tutorial tab mask");
+		this.tutorialTabsRestricted = restricted;
+		this.tutorialTabMask = mask;
+	}
+
+	public boolean isTutorialTabUnlocked(int slot) {
+		return slot >= 0 && slot < Tab.TAB_COUNT
+				&& (!tutorialTabsRestricted
+					|| slot == Tab.SETTINGS
+					|| (tutorialTabMask & (1 << slot)) != 0);
+	}
+
+	public boolean isControlsTutorialPending() {
+		return controlsTutorialPending;
+	}
+
+	public void setControlsTutorialPending(boolean pending) {
+		controlsTutorialPending = pending;
+	}
+
+	/**
+	 * Fullscreen character setup changes the entire HUD root. Reopening an
+	 * overlay in the same network flush can be lost when the 592 client
+	 * rebuilds the HUD. Let at least two player-update cycles pass first.
+	 */
+	public void deferControlsTutorial(int ticks) {
+		controlsTutorialOpeningDelay = Math.max(0, ticks);
+	}
+
+	public boolean isControlsTutorialOpenDeferred() {
+		if (controlsTutorialOpeningDelay == 0)
+			return false;
+		controlsTutorialOpeningDelay--;
+		return true;
+	}
+
+	public void recordControlsTutorialShown(long nowMillis) {
+		controlsTutorialShownAt = nowMillis;
+		controlsTutorialLastSentAt = nowMillis;
+		controlsTutorialResends = 0;
+		// The first camera packet after the full-screen HUD transition is a
+		// baseline, not evidence that the player pressed an arrow key.
+		cameraPositionKnown = false;
+	}
+
+	public boolean canDismissControlsTutorial(long nowMillis) {
+		return controlsTutorialShownAt > 0 && nowMillis - controlsTutorialShownAt >= 1200;
+	}
+
+	/**
+	 * Opening a newly-added JS5 interface can race the client's first fetch
+	 * of its cache group. Reassert the original open packet up to three times,
+	 * without changing the camera baseline or the persisted pending flag.
+	 */
+	public boolean shouldResendControlsTutorial(long nowMillis) {
+		if (controlsTutorialShownAt <= 0 || controlsTutorialResends >= 3
+				|| nowMillis - controlsTutorialLastSentAt < 5000)
+			return false;
+		controlsTutorialResends++;
+		controlsTutorialLastSentAt = nowMillis;
+		return true;
+	}
+
+	/**
+	 * The camera packet describes an angle, not the keyboard event that caused it.
+	 * Establish a baseline first so an initial camera synchronisation cannot
+	 * dismiss the controls lesson without the player rotating the view.
+	 */
+	public boolean recordCameraPosition(int yaw, int pitch) {
+		boolean moved = cameraPositionKnown && (lastCameraYaw != yaw || lastCameraPitch != pitch);
+		lastCameraYaw = yaw;
+		lastCameraPitch = pitch;
+		cameraPositionKnown = true;
+		return moved;
+	}
+
+	public int getCharacterCreationCategory() {
+		return characterCreationCategory;
+	}
+
+	public void setCharacterCreationCategory(int category) {
+		characterCreationCategory = category;
 	}
 
 	public boolean isChatUpdated() {

@@ -50,11 +50,8 @@ public class MouseMovementMessageTest {
 			IncomingMessageDecoder decoder = new IncomingMessageDecoder(codecs);
 			while (!packets.isEmpty()) {
 				Packet packet = (Packet) packets.poll();
-				try {
-					decoder.decode(null, packet, messages);
-				} finally {
-					packet.getPayload().release();
-				}
+				decoder.decode(null, packet, messages);
+				assertEquals(0, packet.getPayload().refCnt());
 			}
 			assertEquals(2, messages.size());
 			Player player = new Player();

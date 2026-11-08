@@ -153,6 +153,11 @@ public final class LoginService implements Service, Runnable {
 		return version;
 	}
 
+	/** Persist an accepted appearance before letting the player leave creation. */
+	public void savePlayer(Player player) {
+		serializer.save(player);
+	}
+
 	/** Called by the shutdown hook under the same lock as the main game tick. */
 	public void saveAllPlayers(World world) {
 		synchronized (world) {

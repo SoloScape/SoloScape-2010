@@ -133,6 +133,9 @@ public class Messages {
 		repository.bind(new ClientPreferencesMessageDecoder());
 		repository.bind(new ClickMessageDecoder());
 		repository.bind(new MouseMovementMessageDecoder());
+		// Client packet 21 batches mouse-click telemetry (3 bytes per event).
+		// Like mouse movement packet 42, it has no gameplay effect.
+		repository.bind(new MouseMovementMessageDecoder(21));
 		repository.bind(new FocusMessageDecoder());
 		repository.bind(new CameraMessageDecoder());
 		// repository.bind(new FlagsMessageDecoder());
@@ -181,9 +184,11 @@ public class Messages {
 
 		repository.bind(new ServerMessageEncoder());
 		repository.bind(new LogoutMessageEncoder());
-		// repository.bind(new InterfaceVisibleMessageEncoder());
 		repository.bind(new InterfaceTextMessageEncoder());
 		repository.bind(new InterfaceSpriteMessageEncoder());
+		// IF_SETHIDE opcode has not been identified for build 592.
+		// Never register InterfaceVisibleMessageEncoder: it sends opcode 21,
+		// which the client decodes as a six-byte music jingle (not 7-byte IF_SETHIDE).
 		repository.bind(new PlayerOnInterfaceMessageEncoder());
 
 		repository.bind(new EnergyMessageEncoder());

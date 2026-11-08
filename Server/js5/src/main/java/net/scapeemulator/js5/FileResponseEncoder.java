@@ -6,39 +6,31 @@ import io.netty.handler.codec.MessageToByteEncoder;
 
 import java.io.IOException;
 
-public final class FileResponseEncoder extends MessageToByteEncoder<FileResponse> { /* TODO: merge with other update encoder? */
+public final class FileResponseEncoder extends MessageToByteEncoder<FileResponse> {
 
 	@Override
 	public void encode(ChannelHandlerContext ctx, FileResponse response, ByteBuf buf) throws IOException {
 		ByteBuf container = response.getContainer();
-		int type = response.getType();
-		int file = response.getFile();
+		try {
+			buf.writeByte(response.getType());
+			buf.writeShort(response.getFile());
 
-		buf.writeByte(type);
-		buf.writeShort(file);
+			int compression = container.readUnsignedByte();
+			if (!response.isPriority())
+				compression |= 0x80;
+			buf.writeByte(compression);
 
-		int compression = container.readUnsignedByte();
-		if (!response.isPriority())
-			compression |= 0x80;
-
-		buf.writeByte(compression);
-
-		int bytes = container.readableBytes();
-		if (bytes > 508)
-			bytes = 508;
-
-		buf.writeBytes(container.readBytes(bytes));
-
-		for (;;) {
-			bytes = container.readableBytes();
-			if (bytes == 0)
-				break;
-			else if (bytes > 511)
-				bytes = 511;
-
-			buf.writeByte(0xFF);
-			buf.writeBytes(container.readBytes(bytes));
+			// Write data directly from the container. readBytes(int) would
+			// allocate an additional ByteBuf for every JS5 chunk.
+			int bytes = Math.min(container.readableBytes(), 508);
+			buf.writeBytes(container, bytes);
+			while (container.isReadable()) {
+				buf.writeByte(0xFF);
+				bytes = Math.min(container.readableBytes(), 511);
+				buf.writeBytes(container, bytes);
+			}
+		} finally {
+			container.release();
 		}
 	}
-
 }

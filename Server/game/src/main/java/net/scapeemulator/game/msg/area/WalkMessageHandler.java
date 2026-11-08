@@ -8,6 +8,8 @@ public final class WalkMessageHandler extends MessageHandler<Player, WalkMessage
 
 	@Override
 	public void handle(Player player, WalkMessage message) {
+		if (player.isCharacterCreationRequired())
+			return;
 		if (message.isMinimap()) {
 			switch (player.getBlackout()) {
 			case COMPASS_BLACKOUT_MINIMAP_UNUSABLE:

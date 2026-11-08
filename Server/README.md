@@ -20,6 +20,17 @@ absolute path of another `www` directory if needed. Configuration remains in
 `game/data`; the launcher creates `serializer.conf` from its example on first
 run if it is missing. Launching does not compile anything.
 
+Before opening the server windows, `Server/run.bat` automatically frees the
+TCP listeners used by the selected world: login/Crosstalk `40000`, game/JS5
+`43594`, client HTTP `8081`, and the world-specific port `40000 + world ID`
+(`40001` by default). It also clears `80` if the listener is identifiable as
+an old ScapeEmulator Java process; unrelated services on optional port 80 are
+left alone. The launcher stops if a required port cannot be freed. Port cleanup
+force-terminates the process owning a conflicting required listener: **log
+characters out before restarting**, because a forced stop does not run Java
+shutdown hooks and unsaved progress can be lost. `Client/run.bat` does not
+free any server ports because the client needs to connect to `8081`.
+
 The default file serializer saves characters locally. The client launcher needs
 a 32-bit Java 8 JDK with `appletviewer.exe`.
 

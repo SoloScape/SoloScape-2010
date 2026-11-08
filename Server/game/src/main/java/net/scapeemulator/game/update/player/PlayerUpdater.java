@@ -1,5 +1,7 @@
 package net.scapeemulator.game.update.player;
 
+import net.scapeemulator.game.content.tutorial.CharacterCreation;
+import net.scapeemulator.game.content.tutorial.ControlsTutorial;
 import net.scapeemulator.game.model.entity.Position;
 import net.scapeemulator.game.model.mob.MobList;
 import net.scapeemulator.game.model.player.Player;
@@ -45,6 +47,11 @@ public final class PlayerUpdater extends MobUpdater<Player> {
 		player.getLocalPlayers().removeAll(localPair.victims);
 		player.getLocalPlayers().addAll(externalPair.victims);
 		player.send(new PlayerUpdateMessage(lastKnownRegion, position, descriptors));
+		// Script 2731 reads the local player appearance via client opcode 3327.
+		// Opening interface 900 before this update triggers a client NPE.
+		// Channel writes retain order, so open after the first appearance packet.
+		CharacterCreation.openIfRequired(player);
+		ControlsTutorial.openIfPending(player);
 	}
 
 	@Override

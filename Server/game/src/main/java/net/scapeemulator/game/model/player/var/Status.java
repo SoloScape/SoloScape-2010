@@ -241,6 +241,14 @@ public final class Status {
 		player.send(new GlobalIntVarMessage(id, value));
 	}
 
+	/** Update a varc already applied by the client's character-creation script.
+	 * No outbound varc event: those events rerun script 2731 and rebuild the preview. */
+	public void setVarCLocal(int id, int value) {
+		if (id < 0 || id >= intVars.length)
+			return;
+		intVars[id] = value;
+	}
+
 	public int getVarC(int id) {
 		if (id < 0 || id > intVars.length)
 			return 0;

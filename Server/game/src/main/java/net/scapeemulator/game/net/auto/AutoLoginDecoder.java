@@ -38,18 +38,22 @@ public final class AutoLoginDecoder extends ByteToMessageDecoder {
 			if (encryptedSize != size - 1)
 				throw new IOException("Encrypted size mismatch.");
 
-			ByteBuf secureBuffer = ByteBufUtils.rsa(buf.readBytes(encryptedSize), RsaKeySet.MODULUS,
+			ByteBuf secureBuffer = ByteBufUtils.rsa(buf.readSlice(encryptedSize), RsaKeySet.MODULUS,
 					RsaKeySet.PRIVATE_KEY);
-			int encryptedType = secureBuffer.readUnsignedByte();
-			if (encryptedType != 10)
-				throw new IOException("Invalid encrypted block type.");
+			try {
+				int encryptedType = secureBuffer.readUnsignedByte();
+				if (encryptedType != 10)
+					throw new IOException("Invalid encrypted block type.");
 
-			secureBuffer.readUnsignedInt();
-			String username = Base37Utils.decodeBase37(secureBuffer.readLong());
-			secureBuffer.readInt();
-			String password = ByteBufUtils.readString(secureBuffer);
-			secureBuffer.readInt();
-			out.add(new AutoLoginRequest(version, username, password));
+				secureBuffer.readUnsignedInt();
+				String username = Base37Utils.decodeBase37(secureBuffer.readLong());
+				secureBuffer.readInt();
+				String password = ByteBufUtils.readString(secureBuffer);
+				secureBuffer.readInt();
+				out.add(new AutoLoginRequest(version, username, password));
+			} finally {
+				secureBuffer.release();
+			}
 		}
 	}
 

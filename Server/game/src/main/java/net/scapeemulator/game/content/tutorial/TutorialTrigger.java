@@ -36,15 +36,20 @@ public class TutorialTrigger extends Trigger<String> {
 		case "tutorial_complete":
 		default:
 			if (status.equalsIgnoreCase("tutorial_complete")) {
-				player.getDisplay().open(PrayerTab.INSTANCE, false);
-				player.getDisplay().open(InventoryTab.INSTANCE, false);
-				player.getDisplay().open(MusicTab.INSTANCE, false);
-				player.getDisplay().open(SkillsTab.INSTANCE, false);
-				player.getDisplay().open(AttackTab.INSTANCE, false);
-				player.getDisplay().open(SettingsTab.INSTANCE, false);
-				player.getDisplay().open(EquipmentTab.INSTANCE, false);
-				player.getDisplay().open(ObjectiveTab.INSTANCE, false);
-				AdditionalTabs.open(player);
+				if (player.isTutorialTabsRestricted()) {
+					// Unstable Foundations uses its own tab-by-tab unlock order.
+					TutorialTabs.restoreUnlockedTabs(player);
+				} else {
+					player.getDisplay().open(PrayerTab.INSTANCE, false);
+					player.getDisplay().open(InventoryTab.INSTANCE, false);
+					player.getDisplay().open(MusicTab.INSTANCE, false);
+					player.getDisplay().open(SkillsTab.INSTANCE, false);
+					player.getDisplay().open(AttackTab.INSTANCE, false);
+					player.getDisplay().open(SettingsTab.INSTANCE, false);
+					player.getDisplay().open(EquipmentTab.INSTANCE, false);
+					player.getDisplay().open(ObjectiveTab.INSTANCE, false);
+					AdditionalTabs.open(player);
+				}
 				player.getDisplay().openInterface(Chat.INSTANCE, 752, 9, false);
 				// Close tutorial interfaces
 				player.getDisplay().close(TutorialIslandProgress.INSTANCE);

@@ -46,10 +46,26 @@ public final class TestGameFrameEncoder {
 	}
 
 	private void testFrame(ByteBuf header, ByteBuf payload, Packet frame) {
-		EmbeddedByteChannel ch = new EmbeddedByteChannel(new PacketEncoder(new ZeroStreamCipher()));
-		ch.write(frame);
-
-		assertArrayEquals(ch.readOutbound().copy().array(), Unpooled.wrappedBuffer(header, payload).copy().array());
+		// Build the expected wire bytes before the encoder consumes its payload.
+		ByteBuf expected = Unpooled.wrappedBuffer(header.copy(), payload.copy());
+		try {
+			EmbeddedByteChannel ch = new EmbeddedByteChannel(new PacketEncoder(new ZeroStreamCipher()));
+			ch.write(frame);
+			ByteBuf actual = ch.readOutbound();
+			try {
+				byte[] expectedBytes = new byte[expected.readableBytes()];
+				expected.readBytes(expectedBytes);
+				byte[] actualBytes = new byte[actual.readableBytes()];
+				actual.readBytes(actualBytes);
+				assertArrayEquals(expectedBytes, actualBytes);
+			} finally {
+				actual.release();
+			}
+		} finally {
+			expected.release();
+			header.release();
+			if (payload.refCnt() > 0) payload.release();
+		}
 	}
 
 }
