@@ -11,8 +11,8 @@ public final class WorldListEncoder extends MessageToByteEncoder<WorldListMessag
 
 	@Override
 	public void encode(ChannelHandlerContext ctx, WorldListMessage message, ByteBuf out) {
+		ByteBuf buf = ctx.alloc().buffer();
 		try {
-			ByteBuf buf = ctx.alloc().buffer();
 			buf.writeByte(1);
 			buf.writeByte(1);
 
@@ -65,6 +65,8 @@ public final class WorldListEncoder extends MessageToByteEncoder<WorldListMessag
 			out.writeBytes(buf);
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			buf.release();
 		}
 	}
 }

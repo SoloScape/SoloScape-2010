@@ -25,12 +25,16 @@ public final class IncomingMessageDecoder extends MessageToMessageDecoder<Packet
 	@SuppressWarnings("unchecked")
 	@Override
 	public void decode(ChannelHandlerContext ctx, Packet packet, MessageBuf<Object> out) throws IOException {
-		MessageDecoder<Message> decoder = (MessageDecoder<Message>) codecs.get(packet.getOpcode());
-
-		if (decoder == null) {
-			logger.warn("No decoder for packet id " + packet.getOpcode() + ".");
-			return;
+		try {
+			MessageDecoder<Message> decoder = (MessageDecoder<Message>) codecs.get(packet.getOpcode());
+			if (decoder == null) {
+				logger.warn("No decoder for packet id " + packet.getOpcode() + ".");
+				return;
+			}
+			out.add(decoder.decode(packet));
+		} finally {
+			// PacketDecoder allocated this payload; no decoded message retains it.
+			packet.getPayload().release();
 		}
-		out.add(decoder.decode(packet));
 	}
 }

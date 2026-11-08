@@ -65,7 +65,7 @@ public final class LoginDecoder extends ByteToMessageDecoder {
 			// int affiliate =
 			buf.readInt();
 			int toolkitSettingSize = buf.readUnsignedByte();
-			buf.readBytes(toolkitSettingSize);
+			buf.skipBytes(toolkitSettingSize);
 
 			// Cached id for player packets
 			int seqNum = buf.readShort();
@@ -75,27 +75,31 @@ public final class LoginDecoder extends ByteToMessageDecoder {
 				crc[i] = buf.readInt();
 
 			int encryptedSize = buf.readUnsignedByte();
-			ByteBuf secureBuffer = ByteBufUtils.rsa(buf.readBytes(encryptedSize), RsaKeySet.MODULUS,
+			ByteBuf secureBuffer = ByteBufUtils.rsa(buf.readSlice(encryptedSize), RsaKeySet.MODULUS,
 					RsaKeySet.PRIVATE_KEY);
 
-			int encryptedType = secureBuffer.readUnsignedByte();
-			if (encryptedType != 10)
-				throw new IOException("Invalid encrypted block type.");
+			try {
+				int encryptedType = secureBuffer.readUnsignedByte();
+				if (encryptedType != 10)
+					throw new IOException("Invalid encrypted block type.");
 
-			long csk = secureBuffer.readLong();
-			long ssk = secureBuffer.readLong();
+				long csk = secureBuffer.readLong();
+				long ssk = secureBuffer.readLong();
 
-			long encodedUsername = secureBuffer.readLong();
-			String username = Base37Utils.decodeBase37(encodedUsername);
-			String password = ByteBufUtils.readString(secureBuffer);
+				long encodedUsername = secureBuffer.readLong();
+				String username = Base37Utils.decodeBase37(encodedUsername);
+				String password = ByteBufUtils.readString(secureBuffer);
 
-			if (((encodedUsername >> 16) & 31) != hash)
-				throw new IOException("Username hash mismatch.");
+				if (((encodedUsername >> 16) & 31) != hash)
+					throw new IOException("Username hash mismatch.");
 
-			boolean reconnecting = type == 16;
-			out.add(new LoginRequest(reconnecting, username, password, csk, ssk, version, seqNum, crc, displ));
+				boolean reconnecting = type == 16;
+				out.add(new LoginRequest(reconnecting, username, password, csk, ssk, version, seqNum, crc, displ));
 
-			ctx.pipeline().remove(this);
+				ctx.pipeline().remove(this);
+			} finally {
+				secureBuffer.release();
+			}
 		}
 	}
 

@@ -76,9 +76,13 @@ public final class HandshakeDecoder extends ChannelInboundByteHandlerAdapter {
 		ctx.fireInboundBufferUpdated();
 
 		if (additionalBuf != null) {
-			ChannelHandlerContext head = ctx.pipeline().firstContext();
-			head.nextInboundByteBuffer().writeBytes(additionalBuf);
-			head.fireInboundBufferUpdated();
+			try {
+				ChannelHandlerContext head = ctx.pipeline().firstContext();
+				head.nextInboundByteBuffer().writeBytes(additionalBuf);
+				head.fireInboundBufferUpdated();
+			} finally {
+				additionalBuf.release();
+			}
 		}
 	}
 

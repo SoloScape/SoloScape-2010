@@ -110,7 +110,7 @@ echo Waiting for login server to start...
 timeout /t 2 /nobreak >nul
 
 echo Starting game server world %WORLD_ID%...
-start "ScapeEmulator 592 - World %WORLD_ID%" /D "%~dp0game" cmd.exe /k call "%JAVA_EXE%" -Xms256m -Xmx1024m "-Dscape.client.dir=%CLIENT_DIR%" -cp "%~dp0game\target\classes;%GAME_CP%" net.scapeemulator.game.Launcher %WORLD_ID%
+start "ScapeEmulator 592 - World %WORLD_ID%" /D "%~dp0game" cmd.exe /k call "%JAVA_EXE%" -Xms256m -Xmx2048m "-Dscape.client.dir=%CLIENT_DIR%" -cp "%~dp0game\target\classes;%GAME_CP%" net.scapeemulator.game.Launcher %WORLD_ID%
 
 echo.
 echo Server windows started.

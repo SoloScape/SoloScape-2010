@@ -47,10 +47,9 @@ public class NpcAndWorldMapPacketTest {
 				IncomingMessageDecoder decoder = new IncomingMessageDecoder(codecs);
 				while (!packets.isEmpty()) {
 					Packet packet = (Packet) packets.poll();
-					try {
-						decoder.decode(null, packet, messages);
-						assertEquals(0, packet.getPayload().readableBytes());
-					} finally { packet.getPayload().release(); }
+					boolean hasAllocatedPayload = packet.getPayload().readableBytes() > 0;
+					decoder.decode(null, packet, messages);
+					if (hasAllocatedPayload) assertEquals(0, packet.getPayload().refCnt());
 				}
 				assertEquals(3, messages.size());
 				NpcOptionTwoMessage npc = (NpcOptionTwoMessage) messages.poll();

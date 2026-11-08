@@ -80,7 +80,12 @@ public final class PacketBuilder {
 			throw new IllegalArgumentException("Builder must be raw!");
 		}
 		builder.checkByteAccess();
-		putBytes(builder.buffer);
+		try {
+			putBytes(builder.buffer);
+		} finally {
+			// The child builder is consumed and cannot be reused.
+			builder.buffer.release();
+		}
 	}
 
 	/**
@@ -96,7 +101,11 @@ public final class PacketBuilder {
 			throw new IllegalArgumentException("Builder must be raw!");
 		}
 		builder.checkByteAccess();
-		putBytesReverse(builder.buffer);
+		try {
+			putBytesReverse(builder.buffer);
+		} finally {
+			builder.buffer.release();
+		}
 	}
 
 	/**
