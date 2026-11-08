@@ -30,7 +30,7 @@ The cellar spawn and first-login character-creation code are implemented. Thirte
 - [x] Restrict fresh characters to Settings and persist individual tab unlocks
 - [ ] Find the correct build-592 IF_SETHIDE protocol before hiding tab icons (opcode 21 is a music jingle)
 - [ ] Wire future quest stages to reveal each tab with TutorialTabs.unlockTab(player, Tab.X)
-- [ ] Replace instructional keycap symbols with exact build-592 graphical keyboard/mouse icons if a suitable component is added
+- [x] Replace yellow tutorial-progress banner with a centred native Controls panel, illustrated arrows, mouse, and Ctrl\n- [ ] Substitute original Jagex key/mouse artwork if the corresponding build-592 assets are recovered
 - [ ] Add objective text, flashing controls, and target hints for each action
 - [ ] Match dialogue, voice lines, music, and effects to the available 2010 assets
 

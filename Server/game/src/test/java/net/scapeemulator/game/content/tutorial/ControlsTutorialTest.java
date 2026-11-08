@@ -14,18 +14,18 @@ public final class ControlsTutorialTest {
         Player player = new Player();
         player.getDisplay().initialize(DisplayMode.FIXED);
         ControlsTutorial.openIfPending(player);
-        assertNull(player.getDisplay().getInterface(371));
+        assertNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
 
         player.setControlsTutorialPending(true);
         player.setCharacterCreationRequired(true);
         ControlsTutorial.openIfPending(player);
-        assertNull(player.getDisplay().getInterface(371));
+        assertNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
 
         player.setCharacterCreationRequired(false);
         ControlsTutorial.openIfPending(player);
-        assertSame(ControlsTutorial.INSTANCE, player.getDisplay().getInterface(371));
+        assertSame(ControlsTutorial.INSTANCE, player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
         ControlsTutorial.openIfPending(player);
-        assertSame(ControlsTutorial.INSTANCE, player.getDisplay().getInterface(371));
+        assertSame(ControlsTutorial.INSTANCE, player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
         assertEquals("Controls", ControlsTutorial.TITLE);
         assertTrue(ControlsTutorial.INSTRUCTIONS.contains("Arrow keys rotate the camera."));
         assertTrue(ControlsTutorial.INSTRUCTIONS.contains("ground or minimap to walk."));
@@ -46,16 +46,16 @@ public final class ControlsTutorialTest {
 
         ControlsTutorial.openIfPending(player);
         camera.handle(player, new CameraMessage(100, 200));
-        assertNotNull(player.getDisplay().getInterface(371));
+        assertNotNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
         assertTrue(player.isControlsTutorialPending());
 
         camera.handle(player, new CameraMessage(101, 200));
-        assertNull(player.getDisplay().getInterface(371));
+        assertNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
         assertFalse(player.isControlsTutorialPending());
 
         camera.handle(player, new CameraMessage(102, 200));
         ControlsTutorial.openIfPending(player);
-        assertNull(player.getDisplay().getInterface(371));
+        assertNull(player.getDisplay().getInterface(ControlsInterfaceInstaller.INTERFACE_ID));
     }
 
     @Test

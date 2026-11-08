@@ -2,16 +2,15 @@ package net.scapeemulator.game.content.tutorial;
 
 import net.scapeemulator.game.model.hud.DisplayMode;
 import net.scapeemulator.game.model.hud.interf.Interface;
-import net.scapeemulator.game.model.hud.interf.action.InterfaceAction;
 import net.scapeemulator.game.model.hud.interf.type.InterfacePersistence;
 import net.scapeemulator.game.model.player.Player;
-import net.scapeemulator.game.msg.interf.child.InterfaceTextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Original build-592 tutorial panel (interface 371), adapted as the first
- * Unstable Foundations controls lesson. No client cache editing required.
+ * The first Unstable Foundations controls lesson, displayed in a centred
+ * window backed by a dedicated IF3 sprite (not interface 371, which is the
+ * flashing Tutorial Island Progress panel).
  */
 public final class ControlsTutorial extends Interface {
     public static final ControlsTutorial INSTANCE = new ControlsTutorial();
@@ -19,19 +18,18 @@ public final class ControlsTutorial extends Interface {
 
     public static final String TITLE = "Controls";
     public static final String INSTRUCTIONS =
-            "<col=ff981f>[^] [L] [v] [R]</col> Arrow keys rotate the camera.<br>" +
-            "<col=ff981f>[MOUSE]</col> Click on the ground or minimap to walk.<br>" +
-            "<col=ff981f>[CTRL]</col> + click to run.<br>" +
-            "<col=ffff00>Please rotate the camera to begin.</col>";
+            "Arrow keys rotate the camera. Click on the ground or minimap to walk. "
+            + "CTRL + click to run. Please rotate the camera to begin.";
 
     private ControlsTutorial() {
-        super(371, InterfacePersistence.PERSISTENT);
+        super(ControlsInterfaceInstaller.INTERFACE_ID, InterfacePersistence.PERSISTENT);
     }
 
     @Override
     public int getDisplaySlot(DisplayMode mode) {
-        // Draw over the chatbox rather than hiding the world or capturing keys.
-        return mode.getOverChatboxRoot();
+        // Centre over the game scene, like the original tutorial screenshot.
+        // This passive sprite does not intercept the camera arrow keys.
+        return mode.getCenterRoot();
     }
 
     public static void openIfPending(Player player) {
@@ -39,17 +37,6 @@ public final class ControlsTutorial extends Interface {
                 || player.getDisplay().getInterface(INSTANCE.getId()) != null)
             return;
         player.getDisplay().open(INSTANCE, true);
-    }
-
-    @Override
-    public void dispatch(Player player, InterfaceAction action) {
-        if (action.getType() == InterfaceAction.ActionType.OPEN_INTER) {
-            // The cached tutorial panel provides its own frame and model icon.
-            // Coloured keycap symbols serve as arrow/mouse/Ctrl illustrations.
-            player.send(new InterfaceTextMessage(getId(), 1, "Keys"));
-            player.send(new InterfaceTextMessage(getId(), 2, TITLE));
-            player.send(new InterfaceTextMessage(getId(), 27, INSTRUCTIONS));
-        }
     }
 
     public static void completeOnCameraRotation(Player player) {
