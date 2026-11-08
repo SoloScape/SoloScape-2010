@@ -1,5 +1,6 @@
 package net.scapeemulator.game.content.tutorial;
 
+import net.scapeemulator.game.model.hud.AdditionalTabs;
 import net.scapeemulator.game.model.hud.Chat;
 import net.scapeemulator.game.model.hud.InventoryTab;
 import net.scapeemulator.game.model.hud.combat.AttackTab;
@@ -43,6 +44,7 @@ public class TutorialTrigger extends Trigger<String> {
 				player.getDisplay().open(SettingsTab.INSTANCE, false);
 				player.getDisplay().open(EquipmentTab.INSTANCE, false);
 				player.getDisplay().open(ObjectiveTab.INSTANCE, false);
+				AdditionalTabs.open(player);
 				player.getDisplay().openInterface(Chat.INSTANCE, 752, 9, false);
 				// Close tutorial interfaces
 				player.getDisplay().close(TutorialIslandProgress.INSTANCE);
