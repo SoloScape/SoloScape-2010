@@ -1,5 +1,7 @@
 # Tutorial Island implementation checklist
 
+Archived island plan. The active onboarding plan is now the [Unstable Foundations checklist](unstable-foundations-checklist.md).
+
 Track the complete Tutorial Island implementation in tutorial order. Check items off once implemented and verified in game.
 
 Target: the original nine-instructor Tutorial Island, adapted to this server's build-592 client and cache. Live RuneScape used Unstable Foundations in 2010, after replacing the island on 17 September 2009; this is an intentional restoration of the older island, not a recreation of the live 2010 starting quest. See the [source audit](tutorial-island-audit.md) for evidence, references, and unresolved historical details.
