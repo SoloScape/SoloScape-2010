@@ -7,13 +7,17 @@ public final class MouseMovementMessageDecoder extends MessageDecoder<MouseMovem
 	private static final MouseMovementMessage MESSAGE = new MouseMovementMessage();
 
 	public MouseMovementMessageDecoder() {
-		super(42);
+		this(42);
+	}
+
+	public MouseMovementMessageDecoder(int opcode) {
+		super(opcode);
 	}
 
 	@Override
 	public MouseMovementMessage decode(Packet packet) {
-		// The 592 client batches compressed mouse coordinates and timing deltas.
-		// No mouse-telemetry analysis is implemented, so consume the framed batch.
+		// Opcode 42 batches mouse movement; opcode 21 batches mouse clicks.
+		// Neither is used for appearance changes or gameplay; discard telemetry.
 		packet.getPayload().skipBytes(packet.getPayload().readableBytes());
 		return MESSAGE;
 	}

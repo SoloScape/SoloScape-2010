@@ -136,12 +136,15 @@ public class CharacterCreationTest {
         CharacterCreation.openIfRequired(player);
         int originalTop = player.getAppearance().getColor(1);
         int originalLegs = player.getAppearance().getColor(2);
+        int originalHair = player.getAppearance().getColor(0);
 
         click(player, 0, 33, -1); // Skin tab
         click(player, 1, 73, 3); // Select a different skin colour
         assertEquals(19, player.getAppearance().getColor(4));
         assertEquals(originalTop, player.getAppearance().getColor(1));
         assertEquals(originalLegs, player.getAppearance().getColor(2));
+        assertEquals(originalHair, player.getAppearance().getColor(0));
+        assertEquals(originalHair, player.getStatus().getVarC(1015));
 
         click(player, 0, 45, -1); // Top model category
         click(player, 1, 66, 5); // Choose model two
@@ -152,6 +155,29 @@ public class CharacterCreationTest {
         assertEquals(4, player.getCharacterCreationCategory());
         assertEquals(22, player.getAppearance().getStyle(3));
         assertEquals(originalTop, player.getAppearance().getColor(1));
+    }
+
+    @Test
+    public void localColourAndStyleSelectionsDoNotEchoClientVarcs() throws Exception {
+        Player player = new Player();
+        player.setCharacterCreationRequired(true);
+        player.getDisplay().initialize(DisplayMode.FIXED);
+        CharacterCreation.openIfRequired(player);
+        Field sequence = Player.class.getDeclaredField("sequenceNumber");
+        sequence.setAccessible(true);
+
+        click(player, 0, 33, -1); // Skin category.
+        int beforeSkin = sequence.getInt(player);
+        int ticket = player.getAppearanceTicket();
+        click(player, 1, 73, 3);
+        assertEquals(beforeSkin, sequence.getInt(player)); // No global-varc packet.
+        assertEquals(ticket, player.getAppearanceTicket()); // No full appearance packet.
+
+        click(player, 0, 37, -1); // Hair model category.
+        int beforeModel = sequence.getInt(player);
+        click(player, 1, 66, 5);
+        assertEquals(beforeModel, sequence.getInt(player)); // No global-varc packet.
+        assertEquals(ticket, player.getAppearanceTicket()); // Preview stays client-owned.
     }
 
     @Test

@@ -428,6 +428,13 @@ public final class Player extends Mob {
 		refreshAppearance();
 	}
 
+	/** Store a CS2-previewed style/colour without sending another appearance
+	 * block. The 592 client scripts 2743/2745 update the local model themselves.
+	 * Call refreshAppearance once the player confirms the design. */
+	public void setCharacterCreationAppearance(Appearance appearance) {
+		this.appearance = appearance;
+	}
+
 	public boolean isCharacterCreationRequired() {
 		return characterCreationRequired;
 	}

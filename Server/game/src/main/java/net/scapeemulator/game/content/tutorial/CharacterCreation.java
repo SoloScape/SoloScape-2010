@@ -135,10 +135,12 @@ public final class CharacterCreation extends Interface {
 			colours[colour] = selected;
 			varc = 1015 + colour;
 		}
-		player.setAppearance(new Appearance(current.getGender(), styles, colours));
-		// Do not resend the unchanged gender, active tab, or unrelated colours:
-		// their client-side triggers otherwise reset the selected category.
-		player.getStatus().setVarC(varc, selected);
+		// CS2 scripts 2743/2745 already update the preview via 403/404.
+		// Echoing a varc or full appearance block causes script 2731 to
+		// rebuild it and may recolour unrelated parts (skin vs hair).
+		// Store both values on the server without triggering client scripts.
+		player.setCharacterCreationAppearance(new Appearance(current.getGender(), styles, colours));
+		player.getStatus().setVarCLocal(varc, selected);
 	}
 
 	private void normalize(Player player, Gender gender, boolean preset) {
@@ -221,6 +223,9 @@ public final class CharacterCreation extends Interface {
 			player.sendMessage("Your appearance could not be saved. Please try confirming again.");
 			return;
 		}
+		// Reapply the accepted design to the normal player-update stream only
+		// after confirming, never while the client owns the preview.
+		player.refreshAppearance();
 		// Replacing a fullscreen root sends the new root; no invalid close(-1) packet.
 		player.getDisplay().close(this, false);
 	}
