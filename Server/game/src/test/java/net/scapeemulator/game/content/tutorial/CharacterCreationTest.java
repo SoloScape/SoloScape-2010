@@ -155,6 +155,26 @@ public class CharacterCreationTest {
     }
 
     @Test
+    public void selectingEveryMaleModelCategoryRetainsTheChosenTab() {
+        Player player = new Player();
+        player.setCharacterCreationRequired(true);
+        player.getDisplay().initialize(DisplayMode.FIXED);
+        CharacterCreation.openIfRequired(player);
+
+        int[] buttons = {37, 41, 45, 49, 53, 57, 61};
+        int[] kits = {12, 14, 21, 22, 20, 17, 27};
+        for (int i = 0; i < buttons.length; i++) {
+            click(player, 0, buttons[i], -1);
+            assertEquals(i + 1, player.getCharacterCreationCategory());
+            click(player, 1, 66, 5);
+            assertEquals(i + 1, player.getCharacterCreationCategory());
+            assertEquals(kits[i], player.getAppearance().getStyle(i));
+            assertEquals(kits[i], player.getStatus().getVarC(1008 + i));
+        }
+        assertEquals(0, player.getStatus().getVarC(1020));
+    }
+
+    @Test
     public void returningPlayersDoNotOpenCharacterCreationOrAcceptCreationClicks() {
         Player player = new Player();
         player.setUsername("existing");
