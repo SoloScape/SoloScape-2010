@@ -494,6 +494,10 @@ public class Combat {
 		return target;
 	}
 
+	public boolean isUnderAttack() {
+		return previousOffenseTick > 0;
+	}
+
 	public void setTarget(Mob target) {
 		this.target = target;
 	}

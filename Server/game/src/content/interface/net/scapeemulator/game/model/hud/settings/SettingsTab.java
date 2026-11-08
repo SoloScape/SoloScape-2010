@@ -4,6 +4,7 @@ import net.scapeemulator.game.model.hud.interf.Interface;
 import net.scapeemulator.game.model.hud.interf.Tab;
 import net.scapeemulator.game.model.hud.interf.child.InterfaceOpenButton;
 import net.scapeemulator.game.model.hud.interf.child.SettingChild;
+import net.scapeemulator.game.model.hud.interf.child.RunToggleButton;
 
 public class SettingsTab extends Tab {
 	public static final Interface INSTANCE = new SettingsTab();
@@ -11,6 +12,7 @@ public class SettingsTab extends Tab {
 
 	public SettingsTab() {
 		super(261, Tab.SETTINGS);
+		addChild(new RunToggleButton(3));
 		addChild(new InterfaceOpenButton(GRAPHICS_SETTINGS, "graphics settings", GraphicsSettings.INSTANCE));
 		addChild(new InterfaceOpenButton(AUDIO_SETTINGS, "audio settings", AudioSettings.INSTANCE));
 		// addChild(new InterfaceOpenButton(HOUSE_SETTINGS, "house options",

@@ -64,7 +64,8 @@ public final class Movement {
 		if (walk != null) {
 			position = walk;
 
-			if (runningQueue || mob.isRunning() || peeked) {
+			boolean canRun = !(mob instanceof Player) || ((Player) mob).hasRunEnergy();
+			if (((runningQueue || mob.isRunning()) && canRun) || peeked) {
 				run = points.poll();
 				if (mob instanceof Player) {
 					int deltaX = walk.getX() - mob.getPosition().getX();
@@ -100,6 +101,8 @@ public final class Movement {
 		if (!mob.getPosition().equals(position))
 			mob.setPosition(position);
 		mob.setSteps(walk, run);
+		if (mob instanceof Player)
+			((Player) mob).updateRunEnergy(run != null);
 	}
 
 	public Position peek() {

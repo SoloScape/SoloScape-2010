@@ -130,6 +130,7 @@ public class Messages {
 		// repository.bind(new RemoveItemMessageDecoder());
 		// repository.bind(new RegionChangedMessageDecoder());
 		repository.bind(new ClickMessageDecoder());
+		repository.bind(new MouseMovementMessageDecoder());
 		repository.bind(new FocusMessageDecoder());
 		repository.bind(new CameraMessageDecoder());
 		// repository.bind(new FlagsMessageDecoder());
@@ -203,6 +204,7 @@ public class Messages {
 		disp.bind(DisplayMessage.class, new DisplayMessageHandler());
 		disp.bind(AreaChangeMessage.class, new AreaChangeMessageHandler());
 		disp.bind(ClickMessage.class, new ClickMessageHandler());
+		disp.bind(MouseMovementMessage.class, new MouseMovementMessageHandler());
 		disp.bind(FocusMessage.class, new FocusMessageHandler());
 		disp.bind(CameraMessage.class, new CameraMessageHandler());
 		disp.bind(FlagsMessage.class, new FlagsMessageHandler());

@@ -6,10 +6,13 @@ import net.scapeemulator.api.message.Message;
 import net.scapeemulator.game.model.FieldOfView;
 import net.scapeemulator.game.model.World;
 import net.scapeemulator.game.model.constants.Interfaces;
+import net.scapeemulator.game.model.constants.Skill;
 import net.scapeemulator.game.model.entity.Position;
 import net.scapeemulator.game.model.hud.HeadsUpDisplay;
 import net.scapeemulator.game.model.hud.combat.PrayerTab;
 import net.scapeemulator.game.model.mob.Mob;
+import net.scapeemulator.game.model.mob.Animation;
+import net.scapeemulator.game.model.mob.combat.Hit;
 import net.scapeemulator.game.model.npc.Npc;
 import net.scapeemulator.game.model.player.var.Status;
 import net.scapeemulator.game.msg.CachedMessage;
@@ -20,6 +23,7 @@ import net.scapeemulator.game.msg.interf.util.GlobalIntVarMessage;
 import net.scapeemulator.game.msg.util.LogoutMessage;
 import net.scapeemulator.game.msg.util.ServerMessage;
 import net.scapeemulator.game.net.game.GameSession;
+import net.scapeemulator.game.task.Action;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Player extends Mob {
+	private static final int RUN_MODE_VAR = 173;
 
 	// TODO: Temporary attributes.
 	private static int appearanceTicketCounter = 0;
@@ -63,7 +68,9 @@ public final class Player extends Mob {
 
 	private Blackout blackout = Blackout.NONE;
 	private int sequenceNumber = 0;
-	private int energy = 100;
+	private double energy = 100;
+	private boolean resting, runBeforeRest;
+	private int restAnimationTicks;
 
 	// Could the sequence number be a 'ping' to declare that a message was
 	// reached to the client? If it was, it could be easily used to send the
@@ -182,11 +189,93 @@ public final class Player extends Mob {
 
 	@Override
 	public boolean isRunning() {
-		return false;// TODO
+		return hasRunEnergy() && status.getWaitingVar(RUN_MODE_VAR) == 1;
+	}
+
+	public void setRunning(boolean running) {
+		stopResting();
+		status.setVar(RUN_MODE_VAR, running && getEnergy() > 0 ? 1 : 0);
+	}
+
+	public boolean isResting() {
+		return resting;
+	}
+
+	public void startResting() {
+		if (resting)
+			return;
+		if (dead() || blockingAction() || combat.getTarget() != null || combat.isUnderAttack()) {
+			sendMessage("You can't rest right now.");
+			return;
+		}
+		stopAction();
+		walkingQueue.reset();
+		runBeforeRest = isRunning();
+		resting = true;
+		restAnimationTicks = 80;
+		// Build 592's orb script recognises varp 173 = 3 as normal resting.
+		status.setVar(RUN_MODE_VAR, 3);
+		super.playAnimation(new Animation(5713));
+	}
+
+	public void stopResting() {
+		if (!resting)
+			return;
+		resting = false;
+		status.setVar(RUN_MODE_VAR, runBeforeRest && getEnergy() > 0 ? 1 : 0);
+		super.playAnimation(new Animation(5748));
+	}
+
+	@Override
+	public void startAction(Action<?> action) {
+		stopResting();
+		super.startAction(action);
+	}
+
+	@Override
+	public void stopAction() {
+		stopResting();
+		super.stopAction();
+	}
+
+	@Override
+	public void playAnimation(Animation animation) {
+		stopResting();
+		super.playAnimation(animation);
+	}
+
+	@Override
+	public void addHit(Hit hit) {
+		if (!hit.isCosmetic())
+			stopResting();
+		super.addHit(hit);
+	}
+
+	public boolean hasRunEnergy() {
+		return energy > 0;
+	}
+
+	/** Called once per movement tick, after the actual steps have been selected. */
+	public void updateRunEnergy(boolean ran) {
+		if (resting && (ran || combat.getTarget() != null || combat.isUnderAttack() || dead()))
+			stopResting();
+		if (resting && --restAnimationTicks <= 0) {
+			// Refresh the sequence's loop count without letting a long rest expire.
+			super.playAnimation(new Animation(5713));
+			restAnimationTicks = 80;
+		}
+		int previousPercent = getEnergy();
+		int agility = skillSet.getCurrentLevel(Skill.AGILITY);
+		updateEnergy(ran ? energy - RunEnergy.drainPerTick(agility)
+				: energy + (resting ? RunEnergy.restingRecoveryPerTick(agility)
+						: RunEnergy.recoveryPerTick(agility)));
+		if (getEnergy() != previousPercent)
+			send(new EnergyMessage(getEnergy()));
 	}
 
 	@Override
 	public void teleport(Position position) {
+		stopResting();
 		this.walkingQueue.reset();
 		this.startPosition = this.position;
 		this.position = position;
@@ -201,6 +290,8 @@ public final class Player extends Mob {
 
 	@Override
 	public void setPosition(Position position) {
+		if (this.position != null && !this.position.equals(position))
+			stopResting();
 		this.position = position;
 		if (display.getInterface(Interfaces.WORLD_MAP) != null)
 			send(new GlobalIntVarMessage(674, position.toPackedInt()));
@@ -216,11 +307,21 @@ public final class Player extends Mob {
 	}
 
 	public void setEnergy(int energy) {
-		if (energy > 100) {
-			energy = 100;
+		updateEnergy(energy);
+		this.send(new EnergyMessage(getEnergy()));
+	}
+
+	private void updateEnergy(double energy) {
+		this.energy = Math.max(0, Math.min(100, energy));
+		// Avoid keeping a near-zero/full value for an extra tick due to floating point error.
+		if (this.energy < 1.0e-9)
+			this.energy = 0;
+		else if (this.energy > 100 - 1.0e-9)
+			this.energy = 100;
+		if (!hasRunEnergy()) {
+			setRunning(false);
+			walkingQueue.setRunningQueue(false);
 		}
-		this.energy = energy;
-		this.send(new EnergyMessage(energy));
 	}
 
 	public void setBlackout(Blackout blackout) {
@@ -305,7 +406,7 @@ public final class Player extends Mob {
 	}
 
 	public int getEnergy() {
-		return energy;
+		return (int) energy;
 	}
 
 	public ChatMessage getChatMessage() {
