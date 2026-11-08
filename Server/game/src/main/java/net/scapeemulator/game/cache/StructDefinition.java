@@ -11,7 +11,7 @@ import net.scapeemulator.cache.Container;
 import net.scapeemulator.cache.ReferenceTable;
 import net.scapeemulator.cache.util.ByteBufferUtils;
 
-/** Integer parameters from build-592 struct definitions (config index 2, archive 34). */
+/** Integer parameters from build-592 struct definitions (config index 2, archive 26). */
 public final class StructDefinition {
     private static Map<Integer, Map<Integer, Integer>> definitions = new HashMap<>();
 
@@ -20,10 +20,10 @@ public final class StructDefinition {
     public static void init(Cache cache) throws IOException {
         ReferenceTable table = ReferenceTable.decode(
                 Container.decode(cache.getStore().read(255, 2)).getData());
-        ReferenceTable.Entry entry = table.getEntry(34);
+        ReferenceTable.Entry entry = table.getEntry(26);
         if (entry == null)
-            throw new IOException("Missing struct archive 2/34 from the game cache.");
-        Archive archive = Archive.decode(cache.read(2, 34).getData(), entry.size());
+            throw new IOException("Missing struct archive 2/26 from the game cache.");
+        Archive archive = Archive.decode(cache.read(2, 26).getData(), entry.size());
         Map<Integer, Map<Integer, Integer>> loaded = new HashMap<>();
         int dense = 0;
         for (int id = 0; id < entry.capacity(); id++) {
@@ -36,7 +36,7 @@ public final class StructDefinition {
         definitions = loaded;
     }
 
-    private static Map<Integer, Integer> decode(ByteBuffer buffer) throws IOException {
+    static Map<Integer, Integer> decode(ByteBuffer buffer) throws IOException {
         Map<Integer, Integer> params = new HashMap<>();
         while (buffer.hasRemaining()) {
             int opcode = buffer.get() & 0xff;

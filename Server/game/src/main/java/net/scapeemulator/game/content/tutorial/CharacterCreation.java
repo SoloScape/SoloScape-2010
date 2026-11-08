@@ -40,7 +40,8 @@ public final class CharacterCreation extends Interface {
 	}
 
 	public static void openIfRequired(Player player) {
-		if (!player.isCharacterCreationRequired())
+		if (!player.isCharacterCreationRequired()
+				|| player.getDisplay().getInterface(INSTANCE.getId()) != null)
 			return;
 		player.stopAction();
 		player.getMovement().reset();

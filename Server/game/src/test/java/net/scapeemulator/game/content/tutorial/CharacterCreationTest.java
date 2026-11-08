@@ -175,6 +175,24 @@ public class CharacterCreationTest {
     }
 
     @Test
+    public void openAfterPlayerUpdateIsIdempotentWhileChangingAppearance() {
+        Player player = new Player();
+        player.setCharacterCreationRequired(true);
+        player.getDisplay().initialize(DisplayMode.FIXED);
+        CharacterCreation.openIfRequired(player);
+        click(player, 0, 37, -1); // Hair
+        click(player, 1, 66, 5);
+        int hair = player.getAppearance().getStyle(0);
+
+        // Called on every player update; an already-open interface must not
+        // normalize appearance again or jump the client back to Skin.
+        CharacterCreation.openIfRequired(player);
+        assertSame(CharacterCreation.INSTANCE, player.getDisplay().getInterface(900));
+        assertEquals(1, player.getCharacterCreationCategory());
+        assertEquals(hair, player.getAppearance().getStyle(0));
+    }
+
+    @Test
     public void returningPlayersDoNotOpenCharacterCreationOrAcceptCreationClicks() {
         Player player = new Player();
         player.setUsername("existing");
