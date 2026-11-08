@@ -215,9 +215,11 @@ public final class CharacterCreation extends Interface {
 			return;
 		}
 		player.setCharacterCreationRequired(false);
+		player.setControlsTutorialPending(true);
 		try {
 			player.getSession().getService().getLoginService().savePlayer(player);
 		} catch (RuntimeException ex) {
+			player.setControlsTutorialPending(false);
 			player.setCharacterCreationRequired(true);
 			logger.error("Could not save character creation for {}.", player.getUsername(), ex);
 			player.sendMessage("Your appearance could not be saved. Please try confirming again.");
@@ -228,6 +230,7 @@ public final class CharacterCreation extends Interface {
 		player.refreshAppearance();
 		// Replacing a fullscreen root sends the new root; no invalid close(-1) packet.
 		player.getDisplay().close(this, false);
+		ControlsTutorial.openIfPending(player);
 	}
 
 	private static Map<Integer, Integer> values(int enumId) {

@@ -95,6 +95,28 @@ public class FilePlayerSerializerTest {
 	}
 
 	@Test
+	public void cameraControlsLessonIsSavedUntilThePlayerRotatesTheView() throws Exception {
+		Path directory = temporary.newFolder().toPath();
+		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);
+		Player player = load(serializer, "cameranew", "password");
+		assertFalse(player.isControlsTutorialPending());
+		player.setCharacterCreationRequired(false);
+		player.setControlsTutorialPending(true);
+		serializer.save(player);
+
+		Player resumed = load(new FilePlayerSerializer(directory), "cameranew", "password");
+		assertFalse(resumed.isCharacterCreationRequired());
+		assertTrue(resumed.isControlsTutorialPending());
+		assertEquals(player.getPosition(), resumed.getPosition());
+		resumed.setControlsTutorialPending(false);
+		serializer.save(resumed);
+
+		Player completed = load(new FilePlayerSerializer(directory), "cameranew", "password");
+		assertFalse(completed.isControlsTutorialPending());
+		assertFalse(completed.isCharacterCreationRequired());
+	}
+
+	@Test
 	public void profilesFromBeforeCreationWasAddedKeepTheirAcceptedAppearance() throws Exception {
 		Path directory = temporary.newFolder().toPath();
 		FilePlayerSerializer serializer = new FilePlayerSerializer(directory);

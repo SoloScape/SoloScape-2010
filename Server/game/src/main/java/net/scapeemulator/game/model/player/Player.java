@@ -63,6 +63,9 @@ public final class Player extends Mob {
 	private Appearance appearance = Appearance.DEFAULT_APPEARANCE;
 	private boolean characterCreationRequired;
 	private int characterCreationCategory;
+	private boolean controlsTutorialPending;
+	private boolean cameraPositionKnown;
+	private int lastCameraYaw, lastCameraPitch;
 	private int[] appearanceTickets = new int[World.MAX_PLAYERS];
 	private int[] tickets = new int[World.MAX_PLAYERS];
 	private int appearanceTicket = nextAppearanceTicket();
@@ -441,6 +444,27 @@ public final class Player extends Mob {
 
 	public void setCharacterCreationRequired(boolean required) {
 		characterCreationRequired = required;
+	}
+
+	public boolean isControlsTutorialPending() {
+		return controlsTutorialPending;
+	}
+
+	public void setControlsTutorialPending(boolean pending) {
+		controlsTutorialPending = pending;
+	}
+
+	/**
+	 * The camera packet describes an angle, not the keyboard event that caused it.
+	 * Establish a baseline first so an initial camera synchronisation cannot
+	 * dismiss the controls lesson without the player rotating the view.
+	 */
+	public boolean recordCameraPosition(int yaw, int pitch) {
+		boolean moved = cameraPositionKnown && (lastCameraYaw != yaw || lastCameraPitch != pitch);
+		lastCameraYaw = yaw;
+		lastCameraPitch = pitch;
+		cameraPositionKnown = true;
+		return moved;
 	}
 
 	public int getCharacterCreationCategory() {

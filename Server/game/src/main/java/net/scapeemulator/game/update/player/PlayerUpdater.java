@@ -1,6 +1,7 @@
 package net.scapeemulator.game.update.player;
 
 import net.scapeemulator.game.content.tutorial.CharacterCreation;
+import net.scapeemulator.game.content.tutorial.ControlsTutorial;
 import net.scapeemulator.game.model.entity.Position;
 import net.scapeemulator.game.model.mob.MobList;
 import net.scapeemulator.game.model.player.Player;
@@ -50,6 +51,7 @@ public final class PlayerUpdater extends MobUpdater<Player> {
 		// Opening interface 900 before this update triggers a client NPE.
 		// Channel writes retain order, so open after the first appearance packet.
 		CharacterCreation.openIfRequired(player);
+		ControlsTutorial.openIfPending(player);
 	}
 
 	@Override

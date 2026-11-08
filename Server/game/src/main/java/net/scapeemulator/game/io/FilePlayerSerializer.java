@@ -126,6 +126,7 @@ public final class FilePlayerSerializer extends PlayerSerializer {
 		put(data, "energy", player.getPreciseEnergy());
 		Appearance appearance = player.getAppearance();
 		put(data, "appearance.confirmed", !player.isCharacterCreationRequired());
+		put(data, "tutorial.controls.pending", player.isControlsTutorialPending());
 		put(data, "appearance.gender", appearance.getGender().name());
 		for (int i = 0; i < 7; i++) put(data, "appearance.style." + i, appearance.getStyle(i));
 		for (int i = 0; i < 5; i++) put(data, "appearance.color." + i, appearance.getColor(i));
@@ -171,6 +172,10 @@ public final class FilePlayerSerializer extends PlayerSerializer {
 		if (!"true".equals(confirmed) && !"false".equals(confirmed))
 			throw new IOException("Invalid appearance confirmation state");
 		player.setCharacterCreationRequired(!Boolean.parseBoolean(confirmed));
+		String controls = data.getProperty("tutorial.controls.pending", "false");
+		if (!"true".equals(controls) && !"false".equals(controls))
+			throw new IOException("Invalid controls tutorial state");
+		player.setControlsTutorialPending(!player.isCharacterCreationRequired() && Boolean.parseBoolean(controls));
 		NewCharacterSpawn.restorePendingFacing(player);
 		SkillSet skills = player.getSkillSet();
 		if (integer(data, "skills.count", 0, 100) != skills.size())
